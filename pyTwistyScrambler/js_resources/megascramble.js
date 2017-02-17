@@ -159,9 +159,19 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return megascramble("444", n);
 	  }
 
+	  function get555WCAScramble(n) {
+	  	return megascramble("555wca", n);
+	  }
+
+  	  function get555SiGNScramble(n) {
+	  	return megascramble("555", n);
+	  }
+
 	  return {
 	    get444WCAScramble: get444WCAScramble,
 	    get444SiGNScramble: get444SiGNScramble,
+	    get555WCAScramble: get555WCAScramble,
+	    get555SiGNScramble: get555SiGNScramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);
