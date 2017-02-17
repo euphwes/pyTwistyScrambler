@@ -1,7 +1,8 @@
-from . import SCRAMBLE_333_SRC, MATHLIB_SRC, CROSS_SRC, trim
+from . import SCRAMBLE_333_SRC, MATHLIB_SRC, SCRAMBLE_SRC, MEGA_SCRAMBLE_SRC, CROSS_SRC, trim
 import execjs
 
 _scrambler = execjs.compile(MATHLIB_SRC + CROSS_SRC + SCRAMBLE_333_SRC)
+_mega_scrambler = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + MEGA_SCRAMBLE_SRC)
 
 #------------------------------------------------------------------------------
 
@@ -46,6 +47,11 @@ def get_ZZLL_scramble():
     return _scrambler.call("scramble_333.getZZLLScramble")
 
 @trim
+def get_ZBLS_scramble():
+    """ Gets a ZBLS scramble of a 3x3x3 cube. """
+    return _scrambler.call("scramble_333.getZBLSScramble")
+
+@trim
 def get_F2L_scramble():
     """ Gets an F2L (first two layers) scramble of a 3x3x3 cube. """
     return _scrambler.call("scramble_333.getF2LScramble")
@@ -54,6 +60,11 @@ def get_F2L_scramble():
 def get_LSE_scramble():
     """ Gets an LSE (last six edges) scramble of a 3x3x3 cube. """
     return _scrambler.call("scramble_333.getLSEScramble")
+
+@trim 
+def get_EOLine_scramble():
+    """ Gets an EO line scramble of a 3x3x3 cube. """
+    return _scrambler.call("scramble_333.getEOLineScramble")
 
 @trim
 def get_CMLL_scramble():
@@ -74,3 +85,38 @@ def get_ELL_scramble():
 def get_easy_cross_scramble(n):
     """ Gets an 'easy cross' scramble, where the cross can be solved in `n` moves."""
     return _scrambler.call("scramble_333.getEasyCrossScramble", n)
+
+@trim
+def get_2genRU_scramble():
+    """ Gets a 2-gen scramble with only RU moves for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_2genRU_scramble")
+
+@trim
+def get_2genLU_scramble():
+    """ Gets a 2-gen scramble with only LU moves for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_2genLU_scramble")
+
+@trim
+def get_2genMU_scramble():
+    """ Gets a 2-gen scramble with only MU moves for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_2genMU_scramble")
+
+@trim
+def get_3genFRU_scramble():
+    """ Gets a 3-gen scramble with only FRU moves for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_3genFRU_scramble")
+
+@trim
+def get_3genRUL_scramble():
+    """ Gets a 3-gen scramble with only RUL moves for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_3genRUL_scramble")
+
+@trim
+def get_3genRrU_scramble():
+    """ Gets a 3-gen scramble with only RrU moves for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_3genRrU_scramble")
+
+@trim
+def get_half_turns_scramble():
+    """ Gets a half turns-only scramble for a 3x3x3 cube. """
+    return _mega_scrambler.call("megaScrambler.get333_halfTurns_scramble")

@@ -32,13 +32,22 @@ In `scrambler333` module:
 - `get_LL_scramble()`             LL (last layer)
 - `get_F2L_scramble()`            F2L (first two layers)
 - `get_easy_cross_scramble(n=4)`  easy cross (where cross can be solved in `n` moves)
-- `get_LSLL_scramble() `          LSLL
-- `get_ZBLL_scramble() `          ZBLL
-- `get_ZZLL_scramble() `          ZZLL
-- `get_LSE_scramble() `           LSE
-- `get_CMLL_scramble() `          CMLL
-- `get_CLL_scramble() `           CLL
-- `get_ELL_scramble() `           ELL
+- `get_LSLL_scramble()`           LSLL
+- `get_ZBLL_scramble()`           ZBLL
+- `get_ZZLL_scramble()`           ZZLL
+- `get_ZBLS_scramble()`           ZBLS
+- `get_LSE_scramble()`            LSE
+- `get_CMLL_scramble()`           CMLL
+- `get_CLL_scramble()`            CLL
+- `get_ELL_scramble()`            ELL
+- `get_EOLine_scramble()`         EO Line
+- `get_2genRU_scramble()`         2-gen with RU moves
+- `get_2genLU_scramble()`         2-gen with LU moves
+- `get_2genMU_scramble()`         2-gen with MU moves
+- `get_3genFRU_scramble()`        3-gen with FRU moves
+- `get_3genRUL_scramble()`        3-gen with RUL moves
+- `get_3genRrU_scramble()`        3-gen with RrU moves
+- `get_half_turns_scramble()`     half-turns only
 
 ### 2x2x2
 In `scrambler222` module:

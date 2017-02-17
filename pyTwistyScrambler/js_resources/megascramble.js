@@ -199,6 +199,34 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return edgescramble("7edge", n);
 	  }
 
+	  function get333_2genRU_scramble(){
+	  	return megascramble("2gen", 25);
+	  }
+
+	  function get333_2genLU_scramble(){
+	  	return megascramble("2genl", 25);
+	  }
+
+	  function get333_2genMU_scramble(){
+	  	return megascramble("roux", 25);
+	  }
+
+	  function get333_3genFRU_scramble(){
+	  	return megascramble("3gen_F", 25);
+	  }
+
+	  function get333_3genRUL_scramble(){
+	  	return megascramble("3gen_L", 25);
+	  }
+
+	  function get333_3genRrU_scramble(){
+	  	return megascramble("RrU", 25);
+	  }
+
+	  function get333_halfTurns_scramble(){
+	  	return megascramble("half", 25);
+	  }
+
 	  return {
 	    get444WCAScramble: get444WCAScramble,
 	    get444SiGNScramble: get444SiGNScramble,
@@ -215,6 +243,14 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	    get777WCAScramble: get777WCAScramble,
 	    get777SiGNScramble: get777SiGNScramble,
 	    get777edgesScramble: get777edgesScramble,
+
+	    get333_2genRU_scramble: get333_2genRU_scramble,
+	    get333_2genLU_scramble: get333_2genLU_scramble,
+	    get333_2genMU_scramble: get333_2genMU_scramble,
+	    get333_3genFRU_scramble: get333_3genFRU_scramble,
+	    get333_3genRUL_scramble: get333_3genRUL_scramble,
+	    get333_3genRrU_scramble: get333_3genRrU_scramble,
+	    get333_halfTurns_scramble: get333_halfTurns_scramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);

@@ -1383,7 +1383,10 @@ var scramble_333 = (function(getNPerm, get8Perm, setNPerm, set8Perm, getNParity,
 		getCLLScramble: getCLLScramble,
 		getELLScramble: getELLScramble,
 		getAnyScramble: getAnyScramble,
-		getEasyCrossScramble: getEasyCrossScramble
+		getEasyCrossScramble: getEasyCrossScramble,
+
+		getEOLineScramble: getEOLineScramble,
+		getZBLSScramble: getZBLSScramble,
 	};
 
 })(mathlib.getNPerm, mathlib.get8Perm, mathlib.setNPerm, mathlib.set8Perm, mathlib.getNParity, mathlib.getPruning, mathlib.Cnk, mathlib.fact, mathlib.rn, mathlib.rndEl);
