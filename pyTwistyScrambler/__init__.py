@@ -3,8 +3,8 @@ from os import path
 curr_dir = path.dirname(path.realpath(__file__))
 
 def trim(func):
-    def trimmed_func():
-        return func().strip()
+    def trimmed_func(*args, **kwargs):
+        return func(*args, **kwargs).strip()
     return trimmed_func
 
 #------------------------------------------------------------------------------

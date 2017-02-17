@@ -64,3 +64,8 @@ def get_CLL_scramble():
 def get_ELL_scramble():
     """ Gets an ELL scramble of a 3x3x3 cube. """
     return _scrambler.call("scramble_333.getELLScramble")
+
+@trim
+def get_easy_cross_scramble(n):
+    """ Gets an 'easy cross' scramble, where the cross can be solved in `n` moves."""
+    return _scrambler.call("scramble_333.getEasyCrossScramble", n)
