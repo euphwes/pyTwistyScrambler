@@ -167,11 +167,21 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return megascramble("555", n);
 	  }
 
+	  function get444edgesScramble(n) {
+	  	return edgescramble("4edge", n);
+	  }
+
+  	  function get555edgesScramble(n) {
+	  	return edgescramble("5edge", n);
+	  }
+
 	  return {
 	    get444WCAScramble: get444WCAScramble,
 	    get444SiGNScramble: get444SiGNScramble,
 	    get555WCAScramble: get555WCAScramble,
 	    get555SiGNScramble: get555SiGNScramble,
+	    get444edgesScramble: get444edgesScramble,
+	    get555edgesScramble: get555edgesScramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);

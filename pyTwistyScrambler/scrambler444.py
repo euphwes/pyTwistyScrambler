@@ -20,3 +20,8 @@ def get_SiGN_scramble(n=40):
 def get_random_scramble():
     """ Gets a random state scramble of a 4x4x4 cube. """
     return _scrambler.call("scramble_444.getRandomScramble")
+
+@trim
+def get_edges_scramble(n=8):
+    """ Gets an edges scramble of length `n` for a 4x4x4 cube. Defaults to csTimer's default length of 8. """
+    return _mega_scrambler.call("megaScrambler.get444edgesScramble", n)

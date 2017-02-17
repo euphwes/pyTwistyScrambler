@@ -1,5 +1,5 @@
 # pyTwistyScrambler
-A Python module for providing scrambles of various twisty puzzles, including the Rubik's cube, 4x4x4 cube, and others.
+A Python module for generating scrambles of various twisty puzzles, including the Rubik's cube, 4x4x4 cube, and others.
 Thanks to [csTimer](https://github.com/cs0x7f/cstimer) for providing the JavaScript scrambling source code around which this project is a wrapper.
 
 ## Example usage
@@ -28,7 +28,7 @@ In `scrambler333` module:
 
 - `get_WCA_scramble()`            random scramble (WCA)
 - `get_edges_scramble()`          edges-only
-- `get_corners_scramble()`        edges-only
+- `get_corners_scramble()`        corners-only
 - `get_LL_scramble()`             LL (last layer)
 - `get_F2L_scramble()`            F2L (first two layers)
 - `get_easy_cross_scramble(n=4)`  easy cross (where cross can be solved in `n` moves)
@@ -40,15 +40,23 @@ In `scrambler333` module:
 - `get_CLL_scramble() `           CLL
 - `get_ELL_scramble() `           ELL
 
+### 2x2x2
+In `scrambler222` module:
+
+- `get_WCA_scramble()`            random scramble (WCA)
+- `get_optimal_scramble()`        optimal random state scramble
+
 ### 4x4x4
 In `scrambler444` module:
 
 - `get_WCA_scramble(n=40)`        random scramble (WCA) of length `n`
 - `get_SiGN_scramble(n=40)`       SiGN-notation scramble of length `n`
 - `get_random_scramble()`         random state scramble (note: this is **slow**)
+- `get_edges_scramble(n=8)`       edges scramble
 
-### 2x2x2
-In `scrambler222` module:
+### 5x5x5
+In `scrambler555` module:
 
-- `get_WCA_scramble()`            random scramble (WCA)
-- `get_optimal_scramble()`        optimal random state scramble
+- `get_WCA_scramble(n=60)`        random scramble (WCA) of length `n`
+- `get_SiGN_scramble(n=60)`       SiGN-notation scramble of length `n`
+- `get_edges_scramble(n=8)`       edges scramble
