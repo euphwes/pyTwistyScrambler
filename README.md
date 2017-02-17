@@ -8,6 +8,7 @@ Thanks to [csTimer](https://github.com/cs0x7f/cstimer) for providing the JavaScr
 - Edges-only and corners-only
 - LL (last layer)
 - F2L (first two layers)
+- Easy cross (where cross can be solved in N moves or less)
 - Specialized (LSLL, ZBLL, ZZLL, F2L, LSE, CMLL, CLL, ELL)
 
 ### 2x2x2
