@@ -6,6 +6,11 @@ _scrambler = execjs.compile(MATHLIB_SRC + CROSS_SRC + SCRAMBLE_333_SRC)
 #------------------------------------------------------------------------------
 
 @trim
+def get_WCA_scramble():
+    """ Gets a WCA scramble of a 3x3x3 cube. """
+    return _scrambler.call("scramble_333.getRandomScramble")
+
+@trim
 def get_random_scramble():
     """ Gets a random scramble of a 3x3x3 cube. """
     return _scrambler.call("scramble_333.getRandomScramble")

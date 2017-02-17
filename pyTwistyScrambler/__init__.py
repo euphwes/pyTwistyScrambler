@@ -15,6 +15,12 @@ with open(path.join(curr_dir, 'js_resources/mathlib.js')) as f:
 with open(path.join(curr_dir, 'js_resources/cross.js')) as f:
     CROSS_SRC = f.read()
 
+with open(path.join(curr_dir, 'js_resources/scramble.js')) as f:
+    SCRAMBLE_SRC = f.read()
+
+with open(path.join(curr_dir, 'js_resources/megascramble.js')) as f:
+    MEGA_SCRAMBLE_SRC = f.read()
+
 with open(path.join(curr_dir, 'js_resources/scramble_333_edit.js')) as f:
     SCRAMBLE_333_SRC = f.read()
 
