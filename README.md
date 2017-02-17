@@ -1,5 +1,5 @@
 # pyTwistyScrambler
-A Python module for generating scrambles of various twisty puzzles, including the Rubik's cube, 4x4x4 cube, and others.
+A Python package for generating scrambles of various twisty puzzles, including the Rubik's cube, 4x4x4 cube, and others.
 Thanks to [csTimer](https://github.com/cs0x7f/cstimer) for providing the JavaScript scrambling source code around which this project is a wrapper.
 
 ## Example usage
@@ -108,3 +108,9 @@ In `squareOneScrambler` module:
 - `get_WCA_scramble()`                      random scramble (WCA)
 - `get_face_turn_metric_scramble(n=40)`     face-turn metric scramble of length `n`
 - `get_twist_metric_scramble(n=20)`         twist metric scramble of length `n`
+
+### Skewb
+In `skewbScrambler` module:
+
+- `get_WCA_scramble()`      random scramble (WCA)
+- `get_ULRB_scramble()`     ULRB scramble

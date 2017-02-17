@@ -227,6 +227,10 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return megascramble("half", 25);
 	  }
 
+	  function getSkewbULRBScramble(){
+	  	return megascramble("skb", 25);
+	  }
+
 	  return {
 	    get444WCAScramble: get444WCAScramble,
 	    get444SiGNScramble: get444SiGNScramble,
@@ -251,6 +255,8 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	    get333_3genRUL_scramble: get333_3genRUL_scramble,
 	    get333_3genRrU_scramble: get333_3genRrU_scramble,
 	    get333_halfTurns_scramble: get333_halfTurns_scramble,
+
+	    getSkewbULRBScramble: getSkewbULRBScramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);
