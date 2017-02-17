@@ -5,7 +5,8 @@ Thanks to [csTimer](https://github.com/cs0x7f/cstimer) for providing the JavaScr
 ## Example usage
 
 ```python
-from pyTwistyScrambler import scrambler333, scrambler222, scrambler444
+from pyTwistyScrambler import scrambler333, scrambler222, scrambler444,\
+	megaminxScrambler, squareOneScrambler
 
 scrambler333.get_WCA_scramble()
 # D2 L F2 L2 F2 U2 L D2 F2 L' B' U2 F2 D' F D2 B' U2 R U'
@@ -13,13 +14,14 @@ scrambler333.get_WCA_scramble()
 scrambler222.get_WCA_scramble()
 # R' F2 U2 R' U R2 F' U' F' U'
 
-# defaults to 40-move length
 scrambler444.get_WCA_scramble()
 # L2 F D2 R U Fw' Uw D L F Rw D' F L2 F' Rw' F Uw B' F' L2 B' U' Rw' F B R' D U2 L2 Fw' B D' Rw' Uw' B' Fw' R2 L2 U
 
-# or a length can be specified
-scrambler444.get_WCA_scramble(10)
-# B2 Uw2 R Uw B2 Uw' F2 Rw' Uw2 R2
+megaminxScrambler.get_WCA_scramble()
+# R-- D-- R++ D++ R++ D++ R++ D++ R++ D++ U R-- D++ R-- D++ R-- D++ R-- D++ R-- D-- U' R-- D++ R-- D-- R-- D++ R-- D-- R-- D-- U' R++ D++ R-- D-- R++ D-- R-- D++ R-- D-- U' R-- D-- R++ D++ R++ D-- R++ D++ R++ D-- U' R-- D-- R++ D-- R++ D-- R++ D-- R++ D++ U R++ D-- R++ D-- R++ D++ R-- D-- R++ D++ U
+
+squareOneScrambler.get_WCA_scramble()
+# (0, -1)/(4, 1)/(-4, 5)/(0, -3)/(1, -2)/(3, 0)/(2, 0)/(0, -3)/(4, -3)/(0, -4)/(2, 0)/(5, -2)/(4, 0)
 ```
 
 ## What scrambles can be generated?
