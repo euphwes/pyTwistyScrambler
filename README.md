@@ -89,3 +89,10 @@ In `pyraminxScrambler` module:
 
 - `get_WCA_scramble()`            random scramble (WCA)
 - `get_optimal_scramble()`        optimal random state scramble
+
+### Megaminx
+In `megaminxScrambler` module:
+
+- `get_WCA_scramble(n=70)`        random scramble (WCA) of length `n`
+- `get_Carrot_scramble(n=70)`     Carrot-notation scramble of length `n`
+- `get_old_style_scramble(n=70)`  old-style scramble of length `n`
