@@ -60,3 +60,17 @@ In `scrambler555` module:
 - `get_WCA_scramble(n=60)`        random scramble (WCA) of length `n`
 - `get_SiGN_scramble(n=60)`       SiGN-notation scramble of length `n`
 - `get_edges_scramble(n=8)`       edges scramble
+
+### 6x6x6
+In `scrambler666` module:
+
+- `get_WCA_scramble(n=80)`        random scramble (WCA) of length `n`
+- `get_SiGN_scramble(n=80)`       SiGN-notation scramble of length `n`
+- `get_edges_scramble(n=8)`       edges scramble
+
+### 7x7x7
+In `scrambler777` module:
+
+- `get_WCA_scramble(n=100)`       random scramble (WCA) of length `n`
+- `get_SiGN_scramble(n=100)`      SiGN-notation scramble of length `n`
+- `get_edges_scramble(n=8)`       edges scramble

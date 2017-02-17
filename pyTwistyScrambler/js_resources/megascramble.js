@@ -175,13 +175,46 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return edgescramble("5edge", n);
 	  }
 
+  	  function get666WCAScramble(n) {
+	  	return megascramble("666wca", n);
+	  }
+
+  	  function get666SiGNScramble(n) {
+	  	return megascramble("666si", n);
+	  }
+
+	  function get666edgesScramble(n) {
+	  	return edgescramble("6edge", n);
+	  }
+
+	  function get777WCAScramble(n) {
+	  	return megascramble("777wca", n);
+	  }
+
+  	  function get777SiGNScramble(n) {
+	  	return megascramble("777si", n);
+	  }
+
+	  function get777edgesScramble(n) {
+	  	return edgescramble("7edge", n);
+	  }
+
 	  return {
 	    get444WCAScramble: get444WCAScramble,
 	    get444SiGNScramble: get444SiGNScramble,
+	    get444edgesScramble: get444edgesScramble,
+
 	    get555WCAScramble: get555WCAScramble,
 	    get555SiGNScramble: get555SiGNScramble,
-	    get444edgesScramble: get444edgesScramble,
 	    get555edgesScramble: get555edgesScramble,
+
+	    get666WCAScramble: get666WCAScramble,
+	    get666SiGNScramble: get666SiGNScramble,
+	    get666edgesScramble: get666edgesScramble,
+
+	    get777WCAScramble: get777WCAScramble,
+	    get777SiGNScramble: get777SiGNScramble,
+	    get777edgesScramble: get777edgesScramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);
