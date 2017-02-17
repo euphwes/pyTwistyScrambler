@@ -96,3 +96,10 @@ In `megaminxScrambler` module:
 - `get_WCA_scramble(n=70)`        random scramble (WCA) of length `n`
 - `get_Carrot_scramble(n=70)`     Carrot-notation scramble of length `n`
 - `get_old_style_scramble(n=70)`  old-style scramble of length `n`
+
+### Square-1
+In `squareOneScrambler` module:
+
+- `get_WCA_scramble()`                      random scramble (WCA)
+- `get_face_turn_metric_scramble(n=40)`     face-turn metric scramble of length `n`
+- `get_twist_metric_scramble(n=20)`         twist metric scramble of length `n`

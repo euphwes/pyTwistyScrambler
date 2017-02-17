@@ -30,6 +30,9 @@ with open(path.join(curr_dir, 'js_resources/scramble_333_edit.js')) as f:
 with open(path.join(curr_dir, 'js_resources/scramble_444.js')) as f:
     SCRAMBLE_444_SRC = f.read()
 
+with open(path.join(curr_dir, 'js_resources/scramble_sq1.js')) as f:
+    SCRAMBLE_SQ1_SRC = f.read()
+
 with open(path.join(curr_dir, 'js_resources/2x2x2.js')) as f:
     SCRAMBLE_222_SRC = f.read()
 

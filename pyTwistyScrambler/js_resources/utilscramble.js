@@ -453,11 +453,19 @@ var util_scramble = (function(rn, rndEl, mega) {
 	function getMegaminxOldStyleScramble(n){
 		return utilscramble("mgmo", n);
 	}
+	function getSquareOneTurnMetricScramble(n){
+			return sq1_scramble(1, n);
+	}
+	function getSquareOneTwistMetricScramble(n){
+			return sq1_scramble(0, n);
+	}
 
 	return {
 		getMegaminxWCAScramble: getMegaminxWCAScramble,
 		getMegaminxCarrotScramble: getMegaminxCarrotScramble,
 		getMegaminxOldStyleScramble: getMegaminxOldStyleScramble,
+		getSquareOneTurnMetricScramble: getSquareOneTurnMetricScramble,
+		getSquareOneTwistMetricScramble: getSquareOneTwistMetricScramble,
 	}
 
 

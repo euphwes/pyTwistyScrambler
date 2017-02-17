@@ -117,7 +117,7 @@ var scramble = (function(rn, rndEl) {
 
 	function regScrambler(type, callback) {
 		// console.log(type);
-		if ($.isArray(type)) {
+		if (Array.isArray(type)) {
 			for (var i = 0; i < type.length; i++) {
 				scramblers[type[i]] = callback;
 			}
@@ -127,6 +127,7 @@ var scramble = (function(rn, rndEl) {
 		return regScrambler;
 	}
 
+	/**
 	function loadSelect2(idx) {
 		if (!$.isNumeric(idx)) {
 			idx = 0;
@@ -147,6 +148,7 @@ var scramble = (function(rn, rndEl) {
 		scrLen[0].disabled = box2[idx][2] <= 0;
 		genScramble();
 	}
+	**/
 
 	function getLastScramble() {
 		return [lasttype, lastscramble];
