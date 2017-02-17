@@ -29,6 +29,7 @@ squareOneScrambler.get_WCA_scramble()
 In `scrambler333` module:
 
 - `get_WCA_scramble()`            random scramble (WCA)
+- `get_3BLD_scramble()`           BLD scramble
 - `get_edges_scramble()`          edges-only
 - `get_corners_scramble()`        corners-only
 - `get_LL_scramble()`             LL (last layer)
@@ -61,6 +62,7 @@ In `scrambler222` module:
 In `scrambler444` module:
 
 - `get_WCA_scramble(n=40)`        random scramble (WCA) of length `n`
+- `get_4BLD_scramble(n=40)`       alias of `get_WCA_scramble`
 - `get_SiGN_scramble(n=40)`       SiGN-notation scramble of length `n`
 - `get_random_scramble()`         random state scramble (note: this is **slow**)
 - `get_edges_scramble(n=8)`       edges scramble
@@ -69,6 +71,7 @@ In `scrambler444` module:
 In `scrambler555` module:
 
 - `get_WCA_scramble(n=60)`        random scramble (WCA) of length `n`
+- `get_5BLD_scramble(n=60)`       alias of `get_WCA_scramble`
 - `get_SiGN_scramble(n=60)`       SiGN-notation scramble of length `n`
 - `get_edges_scramble(n=8)`       edges scramble
 

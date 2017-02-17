@@ -8,6 +8,11 @@ def get_WCA_scramble():
     return _333_SCRAMBLER.call("scramble_333.getRandomScramble")
 
 @trim
+def get_3BLD_scramble():
+    """ Gets a BLD scramble of a 3x3x3 cube. """
+    return _333_SCRAMBLER.call("scramble_333.get3BLDScramble")
+
+@trim
 def get_random_scramble():
     """ Gets a random scramble of a 3x3x3 cube. """
     return _333_SCRAMBLER.call("scramble_333.getRandomScramble")

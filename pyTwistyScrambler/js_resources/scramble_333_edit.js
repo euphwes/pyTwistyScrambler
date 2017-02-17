@@ -1387,6 +1387,8 @@ var scramble_333 = (function(getNPerm, get8Perm, setNPerm, set8Perm, getNParity,
 
 		getEOLineScramble: getEOLineScramble,
 		getZBLSScramble: getZBLSScramble,
+
+		get3BLDScramble: getRandomOriScramble,
 	};
 
 })(mathlib.getNPerm, mathlib.get8Perm, mathlib.setNPerm, mathlib.set8Perm, mathlib.getNParity, mathlib.getPruning, mathlib.Cnk, mathlib.fact, mathlib.rn, mathlib.rndEl);
