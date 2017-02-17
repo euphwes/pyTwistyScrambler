@@ -29,3 +29,6 @@ with open(path.join(curr_dir, 'js_resources/scramble_444.js')) as f:
 
 with open(path.join(curr_dir, 'js_resources/2x2x2.js')) as f:
     SCRAMBLE_222_SRC = f.read()
+
+with open(path.join(curr_dir, 'js_resources/pyraminx.js')) as f:
+    PYRAMINX_SRC = f.read()

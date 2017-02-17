@@ -74,3 +74,9 @@ In `scrambler777` module:
 - `get_WCA_scramble(n=100)`       random scramble (WCA) of length `n`
 - `get_SiGN_scramble(n=100)`      SiGN-notation scramble of length `n`
 - `get_edges_scramble(n=8)`       edges scramble
+
+### Pyraminx
+In `pyraminxScrambler` module:
+
+- `get_WCA_scramble()`            random scramble (WCA)
+- `get_optimal_scramble()`        optimal random state scramble
