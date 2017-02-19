@@ -18,7 +18,7 @@ def get_SiGN_scramble(n=40):
     return _MEGA_SCRAMBLER.call("megaScrambler.get444SiGNScramble", n)
 
 @trim
-def get_random_scramble():
+def get_random_state_scramble():
     """ Gets a random state scramble of a 4x4x4 cube. """
     return _444_SCRAMBLER.call("scramble_444.getRandomScramble")
 

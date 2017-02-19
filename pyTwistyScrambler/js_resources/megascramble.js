@@ -82,7 +82,7 @@ var megaScrambler = (function(mega, rn, rndEl) {
 
 	function formatScramble(type, length) {
 		var value = args2[type].replace(/%l/g, length).replace(/%c/g, '["","2","\'"]');
-		//var ret = scramble.formatScramble(value);
+		var ret = scramble.formatScramble(value, length);
 		return ret;
 	}
 
@@ -231,6 +231,34 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return megascramble("skb", 25);
 	  }
 
+	  function get332scramble(){
+	  	return megascramble("233", 25);
+	  }
+
+	  function get334scramble(){
+	  	return megascramble("334", 40);
+	  }
+
+	  function get336scramble(){
+	  	return megascramble("336", 40);
+	  }
+
+	  function get335scramble(){
+	  	return formatScramble("335", 25);
+	  }
+
+ 	  function get337scramble(){
+	  	return formatScramble("337", 40);
+	  }
+
+ 	  function get112scramble(){
+	  	return megascramble("112", 25);
+	  }
+
+ 	  function getSuperFloppyScramble(){
+	  	return megascramble("sfl", 25);
+	  }
+
 	  return {
 	    get444WCAScramble: get444WCAScramble,
 	    get444SiGNScramble: get444SiGNScramble,
@@ -257,6 +285,14 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	    get333_halfTurns_scramble: get333_halfTurns_scramble,
 
 	    getSkewbULRBScramble: getSkewbULRBScramble,
+
+	    get332scramble: get332scramble,
+	    get334scramble: get334scramble,
+	    get336scramble: get336scramble,
+	    get335scramble: get335scramble,
+	    get337scramble: get337scramble,
+	    get112scramble: get112scramble,
+	    getSuperFloppyScramble: getSuperFloppyScramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);

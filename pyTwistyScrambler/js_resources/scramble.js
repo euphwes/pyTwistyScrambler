@@ -266,7 +266,7 @@ var scramble = (function(rn, rndEl) {
 	 *		${args} => scramblers[scrType](scrType, scrArg)
 	 *		#{args} => mega(args)
 	 */
-	function formatScramble(str) {
+	function formatScramble(str, newLength) {
 		var repfunc = function(match, p1) {
 			// console.log(match);
 			if (match[0] == '$') {
@@ -278,7 +278,11 @@ var scramble = (function(rn, rndEl) {
 				// console.log(scramblers[args[0]]);
 				return scramblers[args[0]].apply(this, args);
 			} else if (match[0] == '#') {
-				return mega.apply(this, JSON.parse('[' + p1 + ']'));
+				var theArgs = JSON.parse('[' + p1 + ']');
+				theArgs.push(undefined);
+				theArgs.push(newLength);
+
+				return mega.apply(this, theArgs);
 			} else {
 				return '';
 			}

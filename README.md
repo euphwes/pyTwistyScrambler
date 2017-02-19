@@ -28,7 +28,7 @@ squareOneScrambler.get_WCA_scramble()
 ### 3x3x3 (Rubik's cube)
 In `scrambler333` module:
 
-- `get_WCA_scramble()`            random scramble (WCA)
+- `get_WCA_scramble()`            random state scramble (WCA)
 - `get_3BLD_scramble()`           BLD scramble
 - `get_edges_scramble()`          edges-only
 - `get_corners_scramble()`        corners-only
@@ -64,7 +64,7 @@ In `scrambler444` module:
 - `get_WCA_scramble(n=40)`        random scramble (WCA) of length `n`
 - `get_4BLD_scramble(n=40)`       alias of `get_WCA_scramble`
 - `get_SiGN_scramble(n=40)`       SiGN-notation scramble of length `n`
-- `get_random_scramble()`         random state scramble (note: this is **slow**)
+- `get_random_state_scramble()`   random state scramble (note: this is **slow**)
 - `get_edges_scramble(n=8)`       edges scramble
 
 ### 5x5x5

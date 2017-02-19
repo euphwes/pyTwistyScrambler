@@ -39,6 +39,12 @@ with open(path.join(curr_dir, 'js_resources/scramble_sq1.js')) as f:
 with open(path.join(curr_dir, 'js_resources/2x2x2.js')) as f:
     SCRAMBLE_222_SRC = f.read()
 
+with open(path.join(curr_dir, 'js_resources/2x2x3.js')) as f:
+    SCRAMBLE_223_SRC = f.read()
+
+with open(path.join(curr_dir, 'js_resources/1x3x3.js')) as f:
+    SCRAMBLE_133_SRC = f.read()
+
 with open(path.join(curr_dir, 'js_resources/pyraminx.js')) as f:
     PYRAMINX_SRC = f.read()
 
@@ -50,8 +56,10 @@ with open(path.join(curr_dir, 'js_resources/skewb.js')) as f:
 _UTIL_SCRAMBLER  = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + UTIL_SCRAMBLE_SRC)
 _PYRA_SCRAMBLER  = execjs.compile(MATHLIB_SRC + PYRAMINX_SRC)
 _SQ1_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + SCRAMBLE_SQ1_SRC)
+_133_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_133_SRC)
 _222_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_222_SRC)
-_333_SCRAMBLER   = execjs.compile(MATHLIB_SRC + CROSS_SRC + SCRAMBLE_333_SRC)
+_223_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_223_SRC)
+_333_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + CROSS_SRC + SCRAMBLE_333_SRC)
 _444_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_333_SRC + SCRAMBLE_444_SRC)
-_MEGA_SCRAMBLER  = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + MEGA_SCRAMBLE_SRC)
+_MEGA_SCRAMBLER  = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + SCRAMBLE_333_SRC + MEGA_SCRAMBLE_SRC)
 _SKEWB_SCRAMBLER = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + SKEWB_SRC)

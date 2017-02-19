@@ -1366,6 +1366,8 @@ var scramble_333 = (function(getNPerm, get8Perm, setNPerm, set8Perm, getNParity,
 		return getAnyScramble(cases[0], cases[1], 0xff, 0xff);
 	}
 
+	scramble.reg('333', getRandomScramble);
+
 	return {
 		/* mark2 interface */
 		getRandomScramble: getRandomScramble, //getRandomScramble,
@@ -1390,5 +1392,4 @@ var scramble_333 = (function(getNPerm, get8Perm, setNPerm, set8Perm, getNParity,
 
 		get3BLDScramble: getRandomOriScramble,
 	};
-
 })(mathlib.getNPerm, mathlib.get8Perm, mathlib.setNPerm, mathlib.set8Perm, mathlib.getNParity, mathlib.getPruning, mathlib.Cnk, mathlib.fact, mathlib.rn, mathlib.rndEl);
