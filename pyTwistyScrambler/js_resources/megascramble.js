@@ -82,7 +82,7 @@ var megaScrambler = (function(mega, rn, rndEl) {
 
 	function formatScramble(type, length) {
 		var value = args2[type].replace(/%l/g, length).replace(/%c/g, '["","2","\'"]');
-		var ret = scramble.formatScramble(value, length);
+		var ret = scramble.formatScramble(value,length,true,true);
 		return ret;
 	}
 
@@ -243,12 +243,12 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return megascramble("336", 40);
 	  }
 
-	  function get335scramble(){
-	  	return formatScramble("335", 25);
+	  function get335scramble(n){
+	  	return formatScramble("335", n);
 	  }
 
- 	  function get337scramble(){
-	  	return formatScramble("337", 40);
+ 	  function get337scramble(n){
+	  	return formatScramble("337", n);
 	  }
 
  	  function get112scramble(){

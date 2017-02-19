@@ -38,9 +38,9 @@ def get_3x3x4_scramble():
     return _MEGA_SCRAMBLER.call("megaScrambler.get334scramble")
 
 @trim
-def get_3x3x5_scramble():
-    """ Gets a random scramble for a 3x3x5 cuboid. """
-    return _MEGA_SCRAMBLER.call("megaScrambler.get335scramble")
+def get_3x3x5_scramble(n=25):
+    """ Gets a random scramble for a 3x3x5 cuboid, where `n` is the length of the non-3x3x3 portion of the scramble. """
+    return _MEGA_SCRAMBLER.call("megaScrambler.get335scramble", n)
 
 @trim
 def get_3x3x6_scramble():
@@ -48,6 +48,6 @@ def get_3x3x6_scramble():
     return _MEGA_SCRAMBLER.call("megaScrambler.get336scramble")
 
 @trim
-def get_3x3x7_scramble():
-    """ Gets a random scramble for a 3x3x7 cuboid. """
-    return _MEGA_SCRAMBLER.call("megaScrambler.get337scramble")
+def get_3x3x7_scramble(n=40):
+    """ Gets a random scramble for a 3x3x7 cuboid, where `n` is the length of the non-3x3x3 portion of the scramble. """
+    return _MEGA_SCRAMBLER.call("megaScrambler.get337scramble", n)

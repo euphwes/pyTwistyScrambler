@@ -114,3 +114,17 @@ In `skewbScrambler` module:
 
 - `get_WCA_scramble()`      random scramble (WCA)
 - `get_ULRB_scramble()`     ULRB scramble
+
+### Cuboids
+In `cuboidsScrambler` module:
+
+- `get_1x1x2_scramble()`              1x1x2 cuboid scramble
+- `get_1x3x3_scramble()`              1x3x3 cuboid (floppy cube) scramble
+- `get_floppy_cube_scramble()`        alias of `get_1x3x3_scramble()`
+- `get_super_floppy_cube_scramble()`  1x3x3 cuboid (super floppy cube) scramble
+- `get_2x2x3_scramble()`              2x2x3 cuboid scramble
+- `get_3x3x2_scramble()`              3x3x2 cuboid scramble
+- `get_3x3x4_scramble()`              3x3x4 cuboid scramble
+- `get_3x3x5_scramble(n=25)`          3x3x5 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
+- `get_3x3x6_scramble()`              3x3x6 cuboid scramble
+- `get_3x3x7_scramble(n=40)`          3x3x7 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
