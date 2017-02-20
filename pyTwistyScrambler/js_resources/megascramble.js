@@ -255,6 +255,22 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	  	return megascramble("112", 25);
 	  }
 
+ 	  function get888scramble(n){
+	  	return megascramble("888", n);
+	  }
+
+ 	  function get999scramble(n){
+	  	return megascramble("999", n);
+	  }
+
+ 	  function get101010scramble(n){
+	  	return megascramble("101010", n);
+	  }
+
+ 	  function get111111scramble(n){
+	  	return megascramble("111111", n);
+	  }
+
  	  function getSuperFloppyScramble(){
 	  	return megascramble("sfl", 25);
 	  }
@@ -293,6 +309,11 @@ var megaScrambler = (function(mega, rn, rndEl) {
 	    get337scramble: get337scramble,
 	    get112scramble: get112scramble,
 	    getSuperFloppyScramble: getSuperFloppyScramble,
+
+	    get888scramble: get888scramble,
+	    get999scramble: get999scramble,
+	    get101010scramble: get101010scramble,
+	    get111111scramble: get111111scramble,
 	  }
 
 })(scramble.mega, mathlib.rn, mathlib.rndEl);

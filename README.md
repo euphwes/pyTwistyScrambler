@@ -128,3 +128,11 @@ In `cuboidsScrambler` module:
 - `get_3x3x5_scramble(n=25)`          3x3x5 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
 - `get_3x3x6_scramble()`              3x3x6 cuboid scramble
 - `get_3x3x7_scramble(n=40)`          3x3x7 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
+
+### Big cubes
+In `bigCubesScrambler` module:
+
+- `get_8x8x8_scrambler(n=120)`        8x8x8 scramble (SiGN notation) of length `n`
+- `get_9x9x9_scrambler(n=120)`        9x9x9 scramble (SiGN notation) of length `n`
+- `get_10x10x10_scrambler(n=120)`     10x10x10 scramble (SiGN notation) of length `n`
+- `get_11x11x11_scrambler(n=120)`     11x11x11 scramble (SiGN notation) of length `n`
