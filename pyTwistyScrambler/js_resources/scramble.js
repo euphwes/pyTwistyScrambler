@@ -266,7 +266,19 @@ var scramble = (function(rn, rndEl) {
 	 *		${args} => scramblers[scrType](scrType, scrArg)
 	 *		#{args} => mega(args)
 	 */
-	function formatScramble(str,length,manuallyAssignLength=false,skipPassingSuffixes=false) {
+	function formatScramble(str,length,manuallyAssignLength,skipPassingSuffixes) {
+
+		if (length === undefined){
+			length = 25;
+		}
+		if (manuallyAssignLength === undefined){
+			manuallyAssignLength = false;
+		}
+
+		if (skipPassingSuffixes === undefined){
+			skipPassingSuffixes = false;
+		}
+
 		var repfunc = function(match, p1) {
 			// console.log(match);
 			if (match[0] == '$') {
