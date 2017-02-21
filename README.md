@@ -129,6 +129,14 @@ In `cuboidsScrambler` module:
 - `get_3x3x6_scramble()`              3x3x6 cuboid scramble
 - `get_3x3x7_scramble(n=40)`          3x3x7 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
 
+### Clock
+In `clockScrambler` module:
+
+- `get_WCA_scramble()`                   Clock scramble (WCA notation)
+- `get_Jaap_scramble()`                  Clock scramble (Jaap notation)
+- `get_concise_scramble()`               Clock scramble (concise notation)
+- `get_efficient_pin_order_scramble()`   Clock scramble (efficient pin order notation)
+
 ### Big cubes
 In `bigCubesScrambler` module:
 

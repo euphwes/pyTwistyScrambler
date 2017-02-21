@@ -453,6 +453,18 @@ var util_scramble = (function(rn, rndEl, mega) {
 	function getMegaminxOldStyleScramble(n){
 		return utilscramble("mgmo", n);
 	}
+	function getClockWCAScramble(){
+		return utilscramble("clkwca", 0);
+	}
+	function getClockJaapScramble(){
+		return utilscramble("clk", 0);
+	}
+	function getClockConciseScramble(){
+		return utilscramble("clkc", 0);
+	}
+	function getClockEfficientPinOrderScramble(){
+		return utilscramble("clke", 0);
+	}
 	function getSquareOneTurnMetricScramble(n){
 			return sq1_scramble(1, n);
 	}
@@ -466,6 +478,11 @@ var util_scramble = (function(rn, rndEl, mega) {
 		getMegaminxOldStyleScramble: getMegaminxOldStyleScramble,
 		getSquareOneTurnMetricScramble: getSquareOneTurnMetricScramble,
 		getSquareOneTwistMetricScramble: getSquareOneTwistMetricScramble,
+
+		getClockWCAScramble: getClockWCAScramble,
+		getClockJaapScramble: getClockJaapScramble,
+		getClockConciseScramble: getClockConciseScramble,
+		getClockEfficientPinOrderScramble: getClockEfficientPinOrderScramble,
 	}
 
 
