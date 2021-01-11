@@ -866,6 +866,16 @@ function simplify_move_sequence(move_sequence, make_noise=false)
 	return simplified;
 }
 
+function generate_multiple_random_state_scrambles(n)
+{
+    var scrambles = [];
+    for (var i = 0; i < n; i++) {
+      scrambles.push(generate_random_state_scramble());
+    }
+
+    return scrambles;
+}
+
 function generate_random_state_scramble()
 {
 	return stringify_move_sequence(invert_move_sequence(solve(random_state())), true);

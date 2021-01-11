@@ -10,6 +10,12 @@ def get_random_state_scramble():
     return _FTO_SCRAMBLER.call("generate_random_state_scramble")
 
 
+def get_multiple_random_state_scrambles(n):
+    """ Gets `n` random-state scrambles for FTO (face-turning octahedron). """
+    scrambles = _FTO_SCRAMBLER.call("generate_multiple_random_state_scrambles", n)
+    return [s.strip() for s in scrambles]
+
+
 @trim
 def get_random_moves_scramble(scramble_length = 30):
     """ Returns a random-moves scramble of length `scramble_length` for FTO. """

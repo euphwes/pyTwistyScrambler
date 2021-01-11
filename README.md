@@ -130,8 +130,14 @@ In `clockScrambler` module:
 ### FTO (Face-turning octahedron)
 In `ftoScrambler` module:
 
-- `get_random_state_scramble()`        random-state scramble (note: this is slow-ish, ~10s per scramble)
+- `get_random_state_scramble()`        random-state scramble (note: this takes ~10s per scramble)
+- `get_multiple_random_state_scrambles(n)`  returns a list of `n` random-state scrambles
 - `get_random_moves_scramble(n=30)`    random-moves scramble of length `n`
+
+If you need multiple random-state scrambles, it's much faster to use `get_multiple_random_state_scrambles` than
+calling `get_random_state_scramble` multiple times; the former takes the usual ~10s for the first scramble but then
+the remaining scrambles are much faster (less than 1s per scramble). This is due to how the underlying FTO scrambler
+generates background data during the first scramble which is used to speed up subsequent scrambles.
 
 ### Big cubes
 In `bigCubesScrambler` module:
