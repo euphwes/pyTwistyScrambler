@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="pyTwistyScrambler",
-    version="1.2",
+    version="1.3",
     author="euphwes",
     author_email="euphwes@gmail.com",
     url="https://github.com/euphwes/pyTwistyScrambler",

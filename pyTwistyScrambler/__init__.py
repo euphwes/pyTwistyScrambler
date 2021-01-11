@@ -51,6 +51,9 @@ with open(path.join(curr_dir, 'js_resources/pyraminx.js')) as f:
 with open(path.join(curr_dir, 'js_resources/skewb.js')) as f:
     SKEWB_SRC = f.read()
 
+with open(path.join(curr_dir, 'js_resources/fto.js')) as f:
+    FTO_SRC = f.read()
+
 #------------------------------------------------------------------------------
 
 _UTIL_SCRAMBLER  = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + UTIL_SCRAMBLE_SRC)
@@ -63,3 +66,4 @@ _333_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + CROSS_SRC + SCRAM
 _444_SCRAMBLER   = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + SCRAMBLE_333_SRC + SCRAMBLE_444_SRC)
 _MEGA_SCRAMBLER  = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + SCRAMBLE_333_SRC + MEGA_SCRAMBLE_SRC)
 _SKEWB_SCRAMBLER = execjs.compile(MATHLIB_SRC + SCRAMBLE_SRC + SKEWB_SRC)
+_FTO_SCRAMBLER   = execjs.compile(FTO_SRC)
