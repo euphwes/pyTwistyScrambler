@@ -1,12 +1,13 @@
 # pyTwistyScrambler
 A Python package for generating scrambles of various twisty puzzles, including the Rubik's cube, 4x4x4 cube, and others.
-Thanks to [csTimer](https://github.com/cs0x7f/cstimer) for providing the JavaScript scrambling source code around which this project is a wrapper.
+Thanks to [csTimer](https://github.com/cs0x7f/cstimer) for providing the bulk of the Javascript scrambling source code around which this project is a wrapper.
+Also thanks to [torchlight](https://github.com/torchlight) for the FTO random-state Javascript scrambling source.
 
 ## Example usage
 
 ```python
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444,\
-	megaminxScrambler, squareOneScrambler
+	megaminxScrambler, squareOneScrambler, ftoScrambler
 
 scrambler333.get_WCA_scramble()
 # D2 L F2 L2 F2 U2 L D2 F2 L' B' U2 F2 D' F D2 B' U2 R U'
@@ -22,6 +23,9 @@ megaminxScrambler.get_WCA_scramble()
 
 squareOneScrambler.get_WCA_scramble()
 # (0, -1)/(4, 1)/(-4, 5)/(0, -3)/(1, -2)/(3, 0)/(2, 0)/(0, -3)/(4, -3)/(0, -4)/(2, 0)/(5, -2)/(4, 0)
+
+ftoScrambler.get_random_state_scramble()
+# U L' U' L U L' U L' U' L' U' L' U' L' U L U' L' F L R L' F L U' F' R' U' R B R BR R' BL B'
 ```
 
 ## What scrambles can be generated?
@@ -115,6 +119,28 @@ In `skewbScrambler` module:
 - `get_WCA_scramble()`      random scramble (WCA)
 - `get_ULRB_scramble()`     ULRB scramble
 
+### Clock
+In `clockScrambler` module:
+
+- `get_WCA_scramble()`                   Clock scramble (WCA notation)
+- `get_Jaap_scramble()`                  Clock scramble (Jaap notation)
+- `get_concise_scramble()`               Clock scramble (concise notation)
+- `get_efficient_pin_order_scramble()`   Clock scramble (efficient pin order notation)
+
+### FTO (Face-turning octahedron)
+In `ftoScrambler` module:
+
+- `get_random_state_scramble()`        random-state scramble (note: this is slow-ish, ~10s per scramble)
+- `get_random_moves_scramble(n=30)`    random-moves scramble of length `n`
+
+### Big cubes
+In `bigCubesScrambler` module:
+
+- `get_8x8x8_scrambler(n=120)`        8x8x8 scramble (SiGN notation) of length `n`
+- `get_9x9x9_scrambler(n=120)`        9x9x9 scramble (SiGN notation) of length `n`
+- `get_10x10x10_scrambler(n=120)`     10x10x10 scramble (SiGN notation) of length `n`
+- `get_11x11x11_scrambler(n=120)`     11x11x11 scramble (SiGN notation) of length `n`
+
 ### Cuboids
 In `cuboidsScrambler` module:
 
@@ -128,19 +154,3 @@ In `cuboidsScrambler` module:
 - `get_3x3x5_scramble(n=25)`          3x3x5 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
 - `get_3x3x6_scramble()`              3x3x6 cuboid scramble
 - `get_3x3x7_scramble(n=40)`          3x3x7 cuboid scramble, where `n` is the length of the non-3x3 portion of the scramble
-
-### Clock
-In `clockScrambler` module:
-
-- `get_WCA_scramble()`                   Clock scramble (WCA notation)
-- `get_Jaap_scramble()`                  Clock scramble (Jaap notation)
-- `get_concise_scramble()`               Clock scramble (concise notation)
-- `get_efficient_pin_order_scramble()`   Clock scramble (efficient pin order notation)
-
-### Big cubes
-In `bigCubesScrambler` module:
-
-- `get_8x8x8_scrambler(n=120)`        8x8x8 scramble (SiGN notation) of length `n`
-- `get_9x9x9_scrambler(n=120)`        9x9x9 scramble (SiGN notation) of length `n`
-- `get_10x10x10_scrambler(n=120)`     10x10x10 scramble (SiGN notation) of length `n`
-- `get_11x11x11_scrambler(n=120)`     11x11x11 scramble (SiGN notation) of length `n`
