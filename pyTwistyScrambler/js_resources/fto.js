@@ -1,13 +1,13 @@
-// Sourced from https://gist.githubusercontent.com/torchlight/efa6a52e4f424d796f5dccdb671e7be6/raw/d507103c302d9211717c1effe83090b234bdb45e/ftosolver.js
+// Sourced from https://gist.githubusercontent.com/torchlight/efa6a52e4f424d796f5dccdb671e7be6/raw/a75e95b28581e77e1058a7d4ba09ebba746186a7/ftosolver.js
 // Courtesy of torchlight / xyzzy. Thanks! This is awesome.
 // Raw source below, with benchmark functions and some console logging removed.
 
 // -------------------------------------------------------------------------------------------------
 
 /* ftosolver.js - An FTO solver
-version 0.3 (2020-12-31)
+version 0.5 (2021-04-03)
 
-Copyright (c) 2016, 2020
+Copyright (c) 2016, 2020, 2021
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,10 @@ This is targeted at Firefox / Spidermonkey releases from 2019 and onwards. It mi
 JavaScript engines. Recent Chrome / Node releases should also work, but are not tested as much.
 */
 
+'use strict';
+
+/* Helper functions */
+
 function counter(A)
 {
 	let counts = [];
@@ -45,7 +49,7 @@ let entropy = 0;
 let entropy_size = 1;
 // invariant: 1 <= entropy_size <= 2**53 and 0 <= entropy < entropy_size
 
-let random_bit = this.crypto ? () => crypto.getRandomValues(new Uint8Array(1))[0] & 1 : () => Math.round(Math.random());
+let random_bit = () => Math.round(Math.random());
 
 const SAFETY_MARGIN = 10000;
 const MAX_ITERATIONS = 20;
@@ -86,7 +90,7 @@ function next(bound)
 	}
 }
 
-return {next, is_crypto: !!this.crypto};
+return {next, is_crypto: false};
 })();
 
 /* Combinatoric functions */
@@ -248,7 +252,7 @@ function index_to_evenpermutation8(ind, perm)
 		unused &= ~(1 << v);
 		f /= 7-i;
 	}
-	// the last two elements are uniquely determined by the other ten
+	// the last two elements are uniquely determined by the others
 	perm[6] = look_up_set_bits[unused | (parity << 8)];
 	perm[7] = look_up_set_bits[unused | ((parity^1) << 8)];
 	return perm;
@@ -263,7 +267,7 @@ function random_permutation(n)
 	let p = [0];
 	for (let i = 1; i < n; i++)
 	{
-		let r = rng.next(i);
+		let r = rng.next(i + 1);
 		p[i] = p[r];
 		p[r] = i;
 	}
@@ -327,8 +331,6 @@ function index_to_comb(ind, ones, bits)
 	return l;
 }
 
-// for some godforsaken reason JS has clz (Math.clz32) but not ctz
-// like, who the hell even uses clz
 // this is "incorrect" for n=0 but that's out of scope
 function ctz(n)
 {
@@ -499,6 +501,41 @@ function invert_permutation(perm)
 	return inverse;
 }
 
+function gcd(a, b)
+{
+	while (a && b) {[a, b] = [b % a, a];}
+	return Math.abs(a + b);
+}
+
+function lcm(a, b)
+{
+	return a*b / gcd(a, b);
+}
+
+function permutation_order(perm)
+{
+	let order = 1;
+	let n = perm.length;
+	let visited = Array(n).fill(false);
+	let i = -1;
+	while (true)
+	{
+		i = visited.indexOf(false, i+1);
+		if (i === -1) {break;}
+		let cycle_length = 0;
+		let j = i;
+		while (!visited[j])
+		{
+			visited[j] = true;
+			j = perm[j];
+			cycle_length++;
+		}
+		//console.log(cycle_length);
+		order = lcm(order, cycle_length);
+	}
+	return order;
+}
+
 /*
 Facelet layout:
 				U									B
@@ -559,31 +596,6 @@ let move_Uwi = compose(move_Uw, move_Uw);
 let move_Lw = compose3(move_Z, move_Uwi, move_Z);
 let move_Fw = compose3(move_X, move_Uw, move_X);
 let move_Rw = compose3(move_X, move_Lw, move_X);
-
-/*
-Corner facelets:
-
-				U									B
-		8	.	.	.	4					67	.	.	.	71
-	44		.	.	.		49			22		.	.	.		35
-	.	.		0		.	.			.	.		63		.	.
-L	.	.	36		45	.	.	R	BR	.	.	18		27	.	.	BL
-	.	.		9		.	.			.	.		54		.	.
-	40		.	.	.		53			26		.	.	.		31
-		13	.	.	.	17					62	.	.	.	58
-				F									D
-
-The numbering:
-				U									B
-		2*	.	.	.	1*					1	.	.	.	2
-	2		.	.	.		1			1		.	.	.		2
-	.	.		0*		.	.			.	.		5		.	.
-L	.	.	0		0	.	.	R	BR	.	.	5*		5	.	.	BL
-	.	.		0		.	.			.	.		5		.	.
-	3		.	.	.		4			4		.	.	.		3
-		3*	.	.	.	4*					4	.	.	.	3
-				F									D
-*/
 
 let colour_map = Array(72).fill().map((_, i) => (i/9)|0);
 
@@ -866,19 +878,19 @@ function simplify_move_sequence(move_sequence, make_noise=false)
 	return simplified;
 }
 
-function generate_multiple_random_state_scrambles(n)
-{
-    var scrambles = [];
-    for (var i = 0; i < n; i++) {
-      scrambles.push(generate_random_state_scramble());
-    }
-
-    return scrambles;
-}
-
 function generate_random_state_scramble()
 {
-	return stringify_move_sequence(invert_move_sequence(solve(random_state())), true);
+	return stringify_move_sequence(invert_move_sequence(solve(random_state(), true)), true);
+}
+
+function generate_multiple_random_state_scrambles(n)
+{
+	let scrambles = [];
+	for (let i = 0; i < n; i++)
+	{
+		scrambles[i] = generate_random_state_scramble();
+	}
+	return scrambles;
 }
 
 /*
@@ -970,6 +982,121 @@ function combine_mtables(mtable0, mtable1)
 	return combined;
 }
 
+function trim_unreachable(mtable, origin)
+{
+	// input: mtable
+	// output: [trimmed mtable, map]
+	let nmoves = mtable.length;
+	let n = mtable[0].length;
+	let reachable = new Uint8Array(n);
+	reachable[origin] = 1;
+	let done = false;
+	while (!done)
+	{
+		done = true;
+		for (let i = 0; i < n; i++)
+		{
+			if (!reachable[i]) {continue;}
+			for (let m = 0; m < nmoves; m++)
+			{
+				if (!reachable[mtable[m][i]])
+				{
+					reachable[mtable[m][i]] = 1;
+					done = false;
+				}
+			}
+		}
+	}
+	let map = new Int32Array(n).fill(-1);
+	for (let i = 0, counter = 0; i < n; i++)
+	{
+		if (!reachable[i]) {continue;}
+		map[i] = counter;
+		counter++;
+	}
+	return [mtable.map(entry => reduce_permutation(entry, reachable)), map];
+}
+
+function reduce_to_quotient(mtable, origins)
+{
+	let nmoves = mtable.length;
+	let n = mtable[0].length;
+	let quotient_map = new Int32Array(n).fill(-1);
+	origins.forEach(x => {quotient_map[x] = 0;});
+	let preimages = [origins];
+	for (let image = 0; image < preimages.length; image++)
+	{
+		let equiv_class = preimages[image];
+		for (let m = 0; m < nmoves; m++)
+		{
+			let j = mtable[m][equiv_class[0]];
+			if (quotient_map[j] !== -1) {continue;} // already looked at those nodes
+			let new_equiv_class = equiv_class.map(x => mtable[m][x]);
+			let new_image = preimages.length;
+			preimages.push(new_equiv_class);
+			for (let x of new_equiv_class)
+			{
+				if (quotient_map[x] !== -1)
+				{
+					throw 'quotienting failed';
+				}
+				quotient_map[x] = new_image;
+			}
+		}
+	}
+	let n_quot = preimages.length;
+	let mtable_quot = Array(nmoves).fill().map(() => new Int32Array(n_quot));
+	for (let m = 0; m < nmoves; m++)
+	{
+		for (let i = 0; i < n_quot; i++)
+		{
+			mtable_quot[m][i] = quotient_map[mtable[m][preimages[i][0]]];
+		}
+	}
+	return [mtable_quot, quotient_map];
+}
+
+function generate_mirrored_coordinate_table(mtable, a, b)
+{
+	let n = mtable[0].length;
+	let nmoves = mtable.length;
+	let mirror_map = new Int32Array(n).fill(-1);
+	mirror_map[a] = b;
+	mirror_map[b] = a;
+	let done = false;
+	while (!done)
+	{
+		done = true;
+		for (let i = 0; i < n; i++)
+		{
+			if (mirror_map[i] === -1) {continue;}
+			let I = mirror_map[i];
+			for (let m = 0; m < nmoves; m++)
+			{
+				let M = m^1;
+				let new_i = mtable[m][i];
+				let new_I = mtable[M][mtable[M][I]];
+				// convert moves according to this table:
+				// U -> L2
+				// L -> U2
+				// F -> R2
+				// R -> F2
+				if (mirror_map[new_i] === -1)
+				{
+					done = false;
+					mirror_map[new_i] = new_I;
+					mirror_map[new_I] = new_i;
+				}
+				else if (mirror_map[new_i] !== new_I)
+				{
+					throw 'mirroring failed - is the initial map correct?';
+				}
+			}
+		}
+	}
+	return mirror_map;
+}
+
 function bfs(mtable, goal_states)
 {
 	let N = mtable[0].length;
@@ -1054,12 +1181,21 @@ function* ida_search_gen(indices, mtables, ptables, bound, last, commute)
 	}
 }
 
-function solve(facelets)
+function solve(facelets, readable=false)
 {
 	let phase1sol = solve_phase1_gen(facelets).next().value;
 	let facelets2 = apply_move_sequence(facelets, phase1sol);
-	let phase2sol = solve_phase2_and_phase3_fast(facelets2);
+	let phase2sol = (readable ? solve_phase2_and_phase3_readable : solve_phase2_and_phase3_fast)(facelets2);
 	let solution = simplify_move_sequence(phase1sol.concat(phase2sol), false);
+	if (apply_move_sequence(facelets, solution).join('') !== solved_state.join(''))
+	{
+		console.log('solving failed!');
+		console.log(facelets);
+		console.log(phase1sol);
+		console.log(facelets2);
+		console.log(phase2sol);
+		console.log(apply_move_sequence(facelets, solution));
+	}
 	return solution;
 }
 
@@ -1127,7 +1263,59 @@ function* solve_phase1_gen(facelets)
 {
 	let mtables = [generate_phase1_edge_mtable(), generate_phase1_centreA_mtable(), generate_phase1_centreB_mtable()];
 	let ptables = [generate_phase1_edge_ptable(), generate_phase1_centre_ptable(), generate_phase1_centre_ptable()];
-	yield* ida_solve_gen(index_phase1(facelets), mtables, ptables, 15, commute_table);
+	yield* phase1_ida_solve_gen(index_phase1(facelets), mtables, ptables, 15, commute_table);
+}
+
+function* phase1_ida_solve_gen(indices, mtables, ptables, moves_left)
+{
+	let ncoords = indices.length;
+	let bound = 0;
+	for (let i = 0; i < ncoords; i++) bound = Math.max(bound, ptables[i][indices[i]]);
+	while (bound <= moves_left)
+	{
+		//console.log(`searching depth ${bound}`);
+		yield* phase1_ida_search_gen(indices, mtables, ptables, bound, -1);
+		bound++;
+	}
+}
+
+function* phase1_ida_search_gen(indices, mtables, ptables, bound, last)
+{
+	let ncoords = 3;//indices.length;
+	let nmoves = 8;//mtables[0].length;
+	let heuristic = Math.max(ptables[0][indices[0]], ptables[1][indices[1]], ptables[2][indices[2]]);//0;
+	//for (let i = 0; i < ncoords; i++) heuristic = Math.max(heuristic, ptables[i][indices[i]]);
+	if (heuristic > bound) return;
+	if (bound === 0)
+	{
+		yield [];
+		return;
+	}
+	if (heuristic === 0 && bound === 1) return;
+	for (let m = 0; m < nmoves; m++)
+	{
+		if (m === last) continue;
+		if (m === last-4) continue;
+		let new_indices = [];
+		new_indices[0] = mtables[0][m][indices[0]];
+		new_indices[1] = mtables[1][m][indices[1]];
+		new_indices[2] = mtables[2][m][indices[2]];
+		let r = 1;
+		while (indices.some((_, i) => indices[i] != new_indices[i]))
+		{
+			let subpath_gen = phase1_ida_search_gen(new_indices, mtables, ptables, bound-1, m);
+			while (true)
+			{
+				let {value: subpath, done} = subpath_gen.next();
+				if (done) break;
+				yield [[m, r]].concat(subpath);
+			}
+			new_indices[0] = mtables[0][m][new_indices[0]];
+			new_indices[1] = mtables[1][m][new_indices[1]];
+			new_indices[2] = mtables[2][m][new_indices[2]];
+			r++;
+		}
+	}
 }
 
 /* Phase 2 stuff */
@@ -1154,32 +1342,40 @@ function index_phase2(facelets)
 		let arr = compose(facelet_indices, phase2_centre_indices).map(x => phase2_centre_colour_map[facelets[x]]);
 		return cti[arr.reduce((acc, x, j) => acc | (x << (2*j)), 0)];
 	});
-	return [a_coord + 2520 * corner_coord, b_coord + 2520 * edge_coord];
+	// we don't need these move tables, but we do need the reduction maps
+	// that are computed with these (and stored in global vars, yikes)
+	generate_phase2_edge_mtable();
+	generate_phase2_corner_mtable_compact();
+	return [a_coord, b_coord, phase2_corner_reduction_map[corner_coord] + 40 * phase2_edge_reduction_map[edge_coord]];
+}
+
+function* solve_phase2_gen(facelets)
+{
+	yield* phase2_ida_solve_gen(index_phase2(facelets), 30);
 }
 
 function solve_phase2(facelets)
 {
-	let mtables = [generate_phase2_ac_mtable(), generate_phase2_be_mtable()];
-	let ptables = [generate_phase2_ac_ptable(), generate_phase2_be_ptable()];
-	let gen = ida_solve_gen(index_phase2(facelets), mtables, ptables, 30, commute_table);
-	return gen.next().value;
+	return solve_phase2_gen(facelets).next().value;
 }
 
-function generate_phase2_be_mtable()
+function generate_phase2_centre_mtables()
 {
-	if (cached_mtables.phase2_be) {return cached_mtables.phase2_be;}
-	let e = generate_mtable_single_generic(move_permutations.slice(0, 4).map(x => x.ep.slice(0, 8)));
+	if (cached_mtables.phase2_centre) {return cached_mtables.phase2_centre;}
+	let a = generate_mtable_comb4_generic(10, 5, 3, 2, 0, move_permutations.slice(0, 4).map(x => reduce_permutation(x.ap, phase2_keep)));
 	let b = generate_mtable_comb4_generic(10, 5, 3, 2, 0, move_permutations.slice(0, 4).map(x => reduce_permutation(x.bp, phase2_keep)));
-	let be = combine_mtables(b, e);
-	let ee = combine_mtables(e, e);
-	return cached_mtables.phase2_be = combine_mtables(be, ee);
+	return cached_mtables.phase2_centre = [a, b];
 }
 
-function generate_phase2_be_ptable()
+let phase2_edge_reduction_map;
+function generate_phase2_edge_mtable()
 {
-	if (cached_ptables.phase2_be) {return cached_ptables.phase2_be;}
-	let g = phase2_centre_goal_states().map(x => x + 2520 * (5 + 8*6 + 8**2*7));
-	return cached_ptables.phase2_be = bfs(generate_phase2_be_mtable(), g);
+	if (cached_mtables.phase2_edge) {return cached_mtables.phase2_edge;}
+	let e = generate_mtable_single_generic(move_permutations.slice(0, 4).map(x => x.ep.slice(0, 8)));
+	let eee = combine_mtables(e, combine_mtables(e, e));
+	let eee_trimmed;
+	[eee_trimmed, phase2_edge_reduction_map] = trim_unreachable(eee, 0o765);
+	return cached_mtables.phase2_edge = eee_trimmed;
 }
 
 function generate_phase2_corner_mtable()
@@ -1215,26 +1411,32 @@ function generate_phase2_corner_mtable()
 	return cached_mtables.phase2_corner = mtable;
 	/*
 	far as I can tell, there's no clean way to index the cosets of the corner subgroup in this
-	phase. it's _possible_ to do it; it's just that the code will be even messier and it's not
-	that important.
+	phase. so we just do it the dirty way (see `reduce_to_quotient`).
 	*/
 }
 
-function generate_phase2_ac_mtable()
+let phase2_corner_reduction_map;
+function generate_phase2_corner_mtable_compact()
 {
-	if (cached_mtables.phase2_ac) {return cached_mtables.phase2_ac;}
-	let a = generate_mtable_comb4_generic(10, 5, 3, 2, 0, move_permutations.slice(0, 4).map(x => reduce_permutation(x.ap, phase2_keep)));
-	let c = generate_phase2_corner_mtable();
-	return cached_mtables.phase2_ac = combine_mtables(a, c);
+	if (cached_mtables.phase2_corner_compact) {return cached_mtables.phase2_corner_compact;}
+	[cached_mtables.phase2_corner_compact, phase2_corner_reduction_map] = reduce_to_quotient(generate_phase2_corner_mtable(), phase2_corner_goal_states());
+	return cached_mtables.phase2_corner_compact;
 }
 
-function generate_phase2_ac_ptable()
+function generate_phase2_ce_mtable()
 {
-	if (cached_ptables.phase2_ac) {return cached_ptables.phase2_ac;}
-	let g_corners = phase2_corner_goal_states();
-	let g_centres = Array.from(phase2_centre_goal_states());
-	let g = g_corners.map(y => g_centres.map(x => x + 2520*y)).flat();
-	return cached_ptables.phase2_ac = bfs(generate_phase2_ac_mtable(), g);
+	if (cached_mtables.phase2_ce) {return cached_mtables.phase2_ce;}
+	let c = generate_phase2_corner_mtable_compact();
+	let e = generate_phase2_edge_mtable();
+	return cached_mtables.phase2_ce = combine_mtables(c, e);
+}
+
+let phase2_ce_mirror_map;
+function generate_phase2_ce_mirror_map()
+{
+	if (phase2_ce_mirror_map) {return phase2_ce_mirror_map;}
+	const ce_solved = index_phase2(solved_state)[2];
+	return phase2_ce_mirror_map = generate_mirrored_coordinate_table(generate_phase2_ce_mtable(), ce_solved, ce_solved);
 }
 
 function phase2_centre_goal_states()
@@ -1279,522 +1481,98 @@ function phase2_corner_goal_states()
 	return flags.map((_,i) => i).filter(i => flags[i]);
 }
 
-/* Phase 3 stuff */
-
-function index_phase3(facelets)
+function generate_phase2_ace_ptable()
 {
-	let ep = Array(8).fill().map((_,i) => get_edge_piece(facelets, i));
-	let edge_coord = evenpermutation8_to_index(ep);
-	let corners = Array(5).fill().map((_,i) => get_corner_piece(facelets, i));
-	let corner_coord = evenpermutation_to_index(corners.map(x => x[0]))*16 + corners.slice(0, 4).map(x => x[1]).reduce((acc, x, j) => acc | (x << j), 0);
-	let [itc, cti, __] = generate_phase3_restricted_centre_lookup_tables();
-	let [a_coord, b_coord] = [centreA_piece_facelets, centreB_piece_facelets].map(facelet_indices =>
+	if (cached_ptables.phase2_ace) {return cached_ptables.phase2_ace;}
+	const [mtable_a, mtable_b] = generate_phase2_centre_mtables();
+	const mtable_ce = generate_phase2_ce_mtable();
+	const Na = 2520;
+	const Nce = 40 * 336;
+	const N = Na * Nce; // = 33868800
+	const ce_solved = index_phase2(solved_state)[2];
+	const max_depth = 9;
+	let ptable = new Int8Array(N).fill(max_depth);
+	for (let a_solved of phase2_centre_goal_states())
 	{
-		let arr = compose(facelet_indices, phase2_centre_indices).map(x => facelets[x] % 4);
-		return cti[arr.reduce((acc, x, j) => acc | (x << (2*j)), 0)];
-	});
-	return [corner_coord, edge_coord, a_coord, b_coord];
-}
-
-function solve_phase3(facelets)
-{
-	let gen = phase3_ida_solve_gen(index_phase3(facelets), 30);
-	return gen.next().value;
-}
-
-function generate_phase3_edge_mtable()
-{
-	if (cached_mtables.phase3_edge) {return cached_mtables.phase3_edge;}
-	const HALFFACT8 = factorial(8)/2; // = 20160
-	let mtable = Array(4).fill().map(() => new Uint32Array(HALFFACT8));
-	let permutations = move_permutations.slice(0, 4).map(x => x.ep.slice(0, 8));
-	for (let i = 0, p = Array(8); i < HALFFACT8; i++)
-	{
-		index_to_evenpermutation8(i, p);
-		for (let m = 0; m < 4; m++)
-		{
-			mtable[m][i] = evenpermutation8_to_index(compose(p, permutations[m]));
-		}
+		ptable[a_solved + Na*ce_solved] = 0;
 	}
-	return cached_mtables.phase3_edge = mtable;
-}
-
-function generate_phase3_corner_mtable()
-{
-	if (cached_mtables.phase3_corner) {return cached_mtables.phase3_corner;}
-	const HALFFACT5 = factorial(5)/2; // = 60
-	const N = HALFFACT5 * 16; // = 960
-	const keep = [true,true,true,true,true,false, true,true,true,true,true,false];
-	// ignore the sixth and twelfth entries, which encode corner #5's state
-	let mtable = Array(4).fill().map(() => new Uint32Array(N));
-	let permutations = move_permutations.slice(0, 4).map(x => reduce_permutation(x.cp, keep));
-	for (let i = 0; i < N; i++)
+	let depth = 0;
+	for (let depth = 0; depth < max_depth-1; depth++)
 	{
-		let p = index_to_evenpermutation(i >> 4, 5);
-		let o = [i & 1, (i >> 1) & 1, (i >> 2) & 1, (i >> 3) & 1];
-		o.push(o.reduce((x, y) => x^y));
-		let cp = Array(10);
-		for (let j = 0; j < 5; j++)
+		for (let state = ptable.indexOf(depth); state !== -1; state = ptable.indexOf(depth, state+1))
 		{
-			cp[j] = p[j] + 5*o[j];
-			cp[j+5] = p[j] + 5*(o[j]^1);
-		}
-		for (let m = 0; m < 4; m++)
-		{
-			let cp2 = compose(cp, permutations[m]);
-			let p2 = cp2.slice(0, 5).map(x => x%5);
-			let o2 = cp2.slice(0, 4).map(x => (x/5)|0);
-			mtable[m][i] = evenpermutation_to_index(p2)*16 + o2.reduce((acc, x, j) => acc | (x << j), 0);
-		}
-	}
-	return cached_mtables.phase3_corner = mtable;
-}
-
-function generate_phase3_corneredge_ptable()
-{
-	if (cached_ptables.phase3_corneredge) {return cached_ptables.phase3_corneredge;}
-	let mtable_c = generate_phase3_corner_mtable();
-	let mtable_e = generate_phase3_edge_mtable();
-	const Nc = 960, Ne = 20160, N = Nc*Ne;
-	let ptable = new Int8Array(N).fill(12);
-	ptable[0] = 0;
-	for (let depth = 0; depth < 11; depth++)
-	{
-		for (let state = 0; state < N; state++)
-		{
-			if (ptable[state] !== depth) {continue;}
-			let c = state % Nc, e = (state / Nc) | 0;
+			let a = state % Na, ce = (state / Na) | 0;
 			for (let move_index = 0; move_index < 4; move_index++)
 			{
-				let new_c = c;
-				let new_e = e;
-				for (let r = 1; r <= 2; r++)
+				let new_a = mtable_a[move_index][a];
+				let new_ce = mtable_ce[move_index][ce];
+				let new_state = new_a + Na*new_ce;
+				if (ptable[new_state] === max_depth)
 				{
-					new_c = mtable_c[move_index][new_c];
-					new_e = mtable_e[move_index][new_e];
-					let new_state = new_c + Nc*new_e;
-					if (ptable[new_state] === 12)
-					{
-						ptable[new_state] = depth + 1;
-					}
+					ptable[new_state] = depth + 1;
+				}
+				new_a = mtable_a[move_index][new_a];
+				new_ce = mtable_ce[move_index][new_ce];
+				new_state = new_a + Na*new_ce;
+				if (ptable[new_state] === max_depth)
+				{
+					ptable[new_state] = depth + 1;
 				}
 			}
 		}
 	}
-	return cached_ptables.phase3_corneredge = ptable;
+	// don't bother filling in the table for depth >=10; this saves a substantial amount of time
+	// on startup at a slight cost of pruning effectiveness
+	return cached_ptables.phase2_ace = ptable;
 }
 
-function generate_phase3_centre_mtables()
+function* phase2_ida_solve_gen(indices, moves_left)
 {
-	if (cached_mtables.phase3_centre) {return cached_mtables.phase3_centre;}
-	let mtable_a = generate_mtable_comb4_generic(10, 3, 3, 2, 2, move_permutations.slice(0, 4).map(x => reduce_permutation(x.ap, phase2_keep)));
-	let mtable_b = generate_mtable_comb4_generic(10, 3, 3, 2, 2, move_permutations.slice(0, 4).map(x => reduce_permutation(x.bp, phase2_keep)));
-	return cached_mtables.phase3_centre = [mtable_a, mtable_b];
-}
-
-function generate_phase3_to_phase2_centre_coordinate_translation_table()
-{
-	let [itc3, cti3] = generate_comb4_lookup_tables(10, 3, 3, 2, 2);
-	let [itc2, cti2] = generate_comb4_lookup_tables(10, 5, 3, 2, 0);
-	return itc3.map(x => cti2[parseInt(x.toString(4).replace(/3/g, '0'), 4)]);
-}
-
-let phase3_itc_restricted, phase3_cti_restricted;
-let phase3_mtable_restricted;
-function generate_phase3_restricted_centre_lookup_tables()
-{
-	let mtable_phase2 = generate_mtable_comb4_generic(10, 5, 3, 2, 0, move_permutations.slice(0, 4).map(x => reduce_permutation(x.ap, phase2_keep)));
-	let phase2_filter = bfs(mtable_phase2, phase2_centre_goal_states());
-	let [itc3, cti3] = generate_comb4_lookup_tables(10, 3, 3, 2, 2);
-	let [itc2, cti2] = generate_comb4_lookup_tables(10, 5, 3, 2, 0);
-	let itc_restricted = itc3.filter(x => phase2_filter[cti2[parseInt(x.toString(4).replace(/3/g, '0'), 4)]] <= 3);
-	let N = itc_restricted.length;
-	let cti_restricted = new Int32Array(4**10).fill(-1);
-	for (let i = 0; i < N; i++)
-	{
-		cti_restricted[itc_restricted[i]] = i;
-	}
-	let mtable = generate_phase3_centre_mtables()[0];
-	let mtable_restricted = Array(8).fill().map(() => new Int32Array(N)); // this is the only time we actually want it to be signed
-	for (let i = 0; i < N; i++)
-	{
-		let c = itc_restricted[i];
-		let i3 = cti3[c];
-		for (let m = 0; m < 4; m++)
-		{
-			mtable_restricted[m][i] = cti_restricted[itc3[mtable[m][i3]]];
-			mtable_restricted[m+4][i] = cti_restricted[itc3[mtable[m][mtable[m][i3]]]];
-		}
-	}
-
-	phase3_itc_restricted = itc_restricted;
-	phase3_cti_restricted = cti_restricted;
-	phase3_mtable_restricted = mtable_restricted;
-	return [itc_restricted, cti_restricted, mtable_restricted];
-}
-
-function generate_phase3_centre_restricted_ptable()
-{
-	if (cached_ptables.phase3_centre_restricted) {return cached_ptables.phase3_centre_restricted;}
-	let [itc, cti, mtable] = generate_phase3_restricted_centre_lookup_tables();
-	const N1 = itc.length; // = 10850
-	const N2 = N1 * N1; // = 117722500
-	let ptable = new Int8Array(N2);
-	let g = cti[parseInt('3322111000', 4)];
-	ptable.fill(-1);
-	ptable[g + g*N1] = 0;
-	let depth = 0;
-	let done = false;
-	while (!done)
-	{
-		done = true;
-		//let count = 0;
-		for (let ia = 0; ia < N1; ia++)
-		{
-			for (let ib = 0; ib <= ia; ib++)
-			{
-				let state = ia*N1 + ib;
-				if (ptable[state] !== depth) {continue;}
-				for (let move_index = 0; move_index < 8; move_index++)
-				{
-					let new_ia = mtable[move_index][ia];
-					let new_ib = mtable[move_index^5][ib];
-					if (new_ia !== -1 && new_ib !== -1)
-					{
-						let new_state = new_ia*N1 + new_ib;
-						if (ptable[new_state] === -1)
-						{
-							done = false;
-							let new_state_flip = new_ib*N1 + new_ia;
-							ptable[new_state] = ptable[new_state_flip] = depth + 1;
-							//count += 1 + (new_ia !== new_ib);
-						}
-					}
-				}
-			}
-		}
-		depth++;
-		//console.log(`depth ${depth}: ${count}`);
-		/*
-		depth 1: 8
-		depth 2: 48
-		depth 3: 288
-		depth 4: 1480
-		depth 5: 6204
-		depth 6: 23487
-		depth 7: 86837
-		depth 8: 321351
-		depth 9: 1168876
-		depth 10: 4054466
-		depth 11: 12418585
-		depth 12: 28315826
-		depth 13: 37653199
-		depth 14: 22625156
-		depth 15: 6001326
-		depth 16: 1142020
-		depth 17: 238769
-		depth 18: 69143
-		depth 19: 20722
-		depth 20: 8062
-		depth 21: 4386
-		depth 22: 2218
-		depth 23: 820
-		depth 24: 122
-		depth 25: 0
-		average: 12.713
-
-		this is for the full state space of 114163400 configurations; if we restrict to just the
-		ones that can show up at the end of phase 2, the actual distribution is:
-		0	1
-		1	4
-		2	8
-		3	16
-		4	34
-		5	78
-		6	180
-		7	498
-		8	1624
-		9	5210
-		10	13547
-		11	18279
-		12	4599
-		13	22
-		average: 10.364
-		*/
-	}
-	return cached_ptables.phase3_centre_restricted = ptable;
-}
-
-function generate_phase3_ae_ptable()
-{
-	if (cached_ptables.phase3_ae_restricted) {return cached_ptables.phase3_ae_restricted;}
-	let [itc, cti, mtable_a] = generate_phase3_restricted_centre_lookup_tables();
-	let mtable_e = generate_phase3_edge_mtable();
-	const Na = itc.length; // = 10850
-	const Ne = mtable_e[0].length; // = 20160
-	const N = Na * Ne; // = 218736000
-	let ptable = new Int8Array(N);
-	let g = cti[parseInt('3322111000', 4)];
-	ptable.fill(-1);
-	ptable[g] = 0;
-	let depth = 0;
-	let done = false;
-	while (!done)
-	{
-		done = true;
-		//let count = 0;
-		for (let ie = 0; ie < Ne; ie++)
-		{
-			for (let ia = 0; ia < Na; ia++)
-			{
-				let state = ia + Na*ie;
-				if (ptable[state] !== depth) {continue;}
-				for (let move_index = 0; move_index < 8; move_index++)
-				{
-					let new_ia = mtable_a[move_index][ia];
-					if (new_ia !== -1)
-					{
-						let new_ie = move_index < 4 ? mtable_e[move_index][ie] : mtable_e[move_index-4][mtable_e[move_index-4][ie]];
-						let new_state = new_ia + Na*new_ie;
-						if (ptable[new_state] === -1)
-						{
-							done = false;
-							ptable[new_state] = depth + 1;
-							//count++;
-						}
-					}
-				}
-			}
-		}
-		depth++;
-		//console.log(`depth ${depth}: ${count}`);
-		/*
-		depth 1: 8
-		depth 2: 44
-		depth 3: 240
-		depth 4: 1191
-		depth 5: 5202
-		depth 6: 21153
-		depth 7: 84193
-		depth 8: 332063
-		depth 9: 1287988
-		depth 10: 4776628
-		depth 11: 16074099
-		depth 12: 44524041
-		depth 13: 80836126
-		depth 14: 60274722
-		depth 15: 10400736
-		depth 16: 117565
-		depth 17: 0
-		average: 12.922
-
-		again, the above is for the full state space of N configurations. restricted to the
-		phase 2 configurations (210 centres * 60 edges):
-		0	1
-		1	4
-		2	8
-		3	16
-		4	32
-		5	64
-		6	132
-		7	315
-		8	864
-		9	2256
-		10	4365
-		11	3759
-		12	775
-		13	9
-		average: 9.932
-		*/
-	}
-	return cached_ptables.phase3_ae_restricted = ptable;
-}
-
-function generate_phase3_ac_ptable()
-{
-	if (cached_ptables.phase3_ac_restricted) {return cached_ptables.phase3_ac_restricted;}
-	let [itc, cti, mtable_a] = generate_phase3_restricted_centre_lookup_tables();
-	let mtable_c = generate_phase3_corner_mtable();
-	const Na = itc.length; // = 10850
-	const Nc = mtable_c[0].length; // = 960
-	const N = Na * Nc; // = 10416000
-	let ptable = new Int8Array(N);
-	let g = cti[parseInt('3322111000', 4)];
-	ptable.fill(-1);
-	ptable[g] = 0;
-	let depth = 0;
-	let done = false;
-	while (!done)
-	{
-		done = true;
-		//let count = 0;
-		for (let ic = 0; ic < Nc; ic++)
-		{
-			for (let ia = 0; ia < Na; ia++)
-			{
-				let state = ia + Na*ic;
-				if (ptable[state] !== depth) {continue;}
-				for (let move_index = 0; move_index < 8; move_index++)
-				{
-					let new_ia = mtable_a[move_index][ia];
-					if (new_ia !== -1)
-					{
-						let new_ic = move_index < 4 ? mtable_c[move_index][ic] : mtable_c[move_index-4][mtable_c[move_index-4][ic]];
-						let new_state = new_ia + Na*new_ic;
-						if (ptable[new_state] === -1)
-						{
-							done = false;
-							ptable[new_state] = depth + 1;
-							//count++;
-						}
-					}
-				}
-			}
-		}
-		depth++;
-		//console.log(`depth ${depth}: ${count}`);
-		/*
-		depth 1: 8
-		depth 2: 48
-		depth 3: 288
-		depth 4: 1582
-		depth 5: 7833
-		depth 6: 35557
-		depth 7: 151648
-		depth 8: 594220
-		depth 9: 1918336
-		depth 10: 3944309
-		depth 11: 3254054
-		depth 12: 504938
-		depth 13: 3178
-		depth 14: 0
-		average: 10.050
-
-		restricted to the phase 2 configurations (210 centres * 24 corners):
-		0	1
-		1	4
-		2	8
-		3	16
-		4	32
-		5	71
-		6	189
-		7	543
-		8	1392
-		9	1962
-		10	793
-		11	29
-		average: 8.438
-		*/
-	}
-	return cached_ptables.phase3_ac_restricted = ptable;
-}
-
-function generate_mirrored_coordinate_table(mtable, a, b)
-{
-	let n = mtable[0].length;
-	let nmoves = mtable.length;
-	let mirror_map = new Int32Array(n).fill(-1);
-	mirror_map[a] = b;
-	mirror_map[b] = a;
-	let done = false;
-	while (!done)
-	{
-		done = true;
-		for (let i = 0; i < n; i++)
-		{
-			if (mirror_map[i] === -1) {continue;}
-			let I = mirror_map[i];
-			for (let m = 0; m < nmoves; m++)
-			{
-				let M = m^1;
-				let new_i = mtable[m][i];
-				let new_I = mtable[M][mtable[M][I]];
-				// convert moves according to this table:
-				// U -> L'
-				// L -> U'
-				// F -> R'
-				// R -> F'
-				if (mirror_map[new_i] === -1)
-				{
-					done = false;
-					mirror_map[new_i] = new_I;
-					mirror_map[new_I] = new_i;
-				}
-				else if (mirror_map[new_i] !== new_I)
-				{
-					throw 'mirroring failed - is the initial map correct?';
-				}
-			}
-		}
-	}
-	// this always finishes in two passes for the two things we actually care about mirroring
-	return mirror_map;
-}
-
-function* phase3_ida_solve_gen(indices, moves_left, initial_bound=0)
-{
-	let mtable_c = generate_phase3_corner_mtable();
-	let mtable_e = generate_phase3_edge_mtable();
-	let [__, ___, mtable_a] = generate_phase3_restricted_centre_lookup_tables();
-	let ptable_ce = generate_phase3_corneredge_ptable();
-	let ptable_ab = generate_phase3_centre_restricted_ptable();
-	let ptable_ae = generate_phase3_ae_ptable();
-	let ptable_ac = generate_phase3_ac_ptable();
-	let mirror_c = generate_mirrored_coordinate_table(mtable_c, 0, 0);
-	let mirror_e = generate_mirrored_coordinate_table(mtable_e, 0, 0);
-	let [c, e, a, b] = indices;
-	let bound = Math.max(
-		ptable_ce[c + 960*e],
-		ptable_ab[a + 10850*b],
-		ptable_ae[a + 10850*e],
-		ptable_ac[a + 10850*c],
-		initial_bound);
+	let [mtable_a, mtable_b] = generate_phase2_centre_mtables()
+	let mtable_ce = generate_phase2_ce_mtable();
+	let ptable_ace = generate_phase2_ace_ptable();
+	let mirror_map = generate_phase2_ce_mirror_map();
+	let [a, b, ce] = indices;
+	let ce_mirror = mirror_map[ce];
+	let bound = Math.max(ptable_ace[a + 2520 * ce], ptable_ace[b + 2520 * ce_mirror]);
 	while (bound <= moves_left)
 	{
 		//console.log(`searching depth ${bound}`);
-		yield* phase3_ida_search_gen(
-			c, e, a, b,
-			mtable_c, mtable_e, mtable_a,
-			ptable_ce, ptable_ab, ptable_ae, ptable_ac,
-			mirror_c, mirror_e,
+		yield* phase2_ida_search_gen(
+			a, b, ce,
+			mtable_a, mtable_b, mtable_ce,
+			ptable_ace,
+			mirror_map,
 			bound,
 			-1);
 		bound++;
 	}
 }
 
-function* phase3_ida_search_gen(c, e, a, b, mtable_c, mtable_e, mtable_a, ptable_ce, ptable_ab, ptable_ae, ptable_ac, mirror_c, mirror_e, bound, last)
+function* phase2_ida_search_gen(a, b, ce, mtable_a, mtable_b, mtable_ce, ptable_ace, mirror_map, bound, last)
 {
-	let h_ab = ptable_ab[a + 10850*b];
-	let h_ac = ptable_ac[a + 10850*c];
-	let h_ae = ptable_ae[a + 10850*e];
-	if (h_ab > bound || h_ac > bound || h_ae > bound) {return;}
-	let h_bc = ptable_ac[b + 10850*mirror_c[c]];
-	let h_be = ptable_ae[b + 10850*mirror_e[e]];
-	let h_ce = ptable_ce[c + 960*e];
-	if (h_bc > bound || h_be > bound || h_ce > bound) {return;}
+	let h = Math.max(ptable_ace[a + 2520 * ce], ptable_ace[b + 2520 * mirror_map[ce]]);
+	if (h > bound) {return;}
 	if (bound === 0)
 	{
 		yield [];
 		return;
 	}
-	else if (h_ab === 0 && h_ce === 0) {return;}
+	else if (h === 0) {return;}
 	for (let m = 0; m < 4; m++)
 	{
 		if (m === last) continue;
-		let new_c = c, new_e = e, new_a, new_b;
+		let new_a = a, new_b = b, new_ce = ce;
 		for (let r = 1; r <= 2; r++)
 		{
-			new_c = mtable_c[m][new_c];
-			new_e = mtable_e[m][new_e];
-			if (r === 1) {new_a = mtable_a[m][a]; new_b = mtable_a[m^5][b];}
-			else {new_a = mtable_a[m^4][a]; new_b = mtable_a[m^1][b];}
-			if (new_a === -1 || new_b === -1) {continue;}
-			let subpath_gen = phase3_ida_search_gen(
-				new_c, new_e, new_a, new_b,
-				mtable_c, mtable_e, mtable_a,
-				ptable_ce, ptable_ab, ptable_ae, ptable_ac,
-				mirror_c, mirror_e,
+			new_a = mtable_a[m][new_a];
+			new_b = mtable_b[m][new_b];
+			new_ce = mtable_ce[m][new_ce];
+			let subpath_gen = phase2_ida_search_gen(
+				new_a, new_b, new_ce,
+				mtable_a, mtable_b, mtable_ce,
+				ptable_ace,
+				mirror_map,
 				bound-1,
 				m);
 			while (true)
@@ -1843,14 +1621,14 @@ let phase3_2gen_move_seqs = [
 [[2,2], [1,2], [2,2], [3,2], [2,2], [3,2], [0,2], [3,2]],
 [[6,2], [7,2], [1,2], [0,2], [1,2], [0,2], [6,2], [7,2]],
 /*
-[[2,1], [0,2], [2,2], [0,2], [2,1], [3,1], [0,2], [3,2], [2,2]],
-[[3,2], [1,1], [3,1], [1,1], [3,2], [2,2], [1,1], [2,1], [3,1]],
-[[6,1], [3,2], [6,2], [1,2], [6,1], [0,1], [3,2], [0,2], [6,2]],
-[[7,2], [2,1], [7,1], [0,1], [7,2], [1,2], [2,1], [1,1], [7,1]],
-[[2,1], [0,1], [3,1], [0,2], [3,2], [0,1], [3,1], [0,2], [3,2], [2,2]],
-[[3,2], [1,2], [2,2], [1,1], [2,1], [1,2], [2,2], [1,1], [2,1], [3,1]],
-[[6,1], [0,1], [3,1], [0,2], [3,2], [0,1], [3,1], [0,2], [3,2], [6,2]],
-[[7,2], [1,2], [2,2], [1,1], [2,1], [1,2], [2,2], [1,1], [2,1], [7,1]],
+[[2,1], [0,2], [2,2], [0,2], [2,1], [3,1], [0,2], [3,2], [2,2]], // F U' F' U' F R U' R' F'
+[[3,2], [1,1], [3,1], [1,1], [3,2], [2,2], [1,1], [2,1], [3,1]], // R' L R L R' F' L F R
+[[6,1], [3,2], [6,2], [1,2], [6,1], [0,1], [3,2], [0,2], [6,2]], // f R' f' L' f U R' U' f'
+[[7,2], [2,1], [7,1], [0,1], [7,2], [1,2], [2,1], [1,1], [7,1]], // r' F r U r' L' F L r
+[[2,1], [0,1], [3,1], [0,2], [3,2], [0,1], [3,1], [0,2], [3,2], [2,2]], // F (U R U' R')2 F'
+[[3,2], [1,2], [2,2], [1,1], [2,1], [1,2], [2,2], [1,1], [2,1], [3,1]], // R' (L' F' L F)2 R
+[[6,1], [0,1], [3,1], [0,2], [3,2], [0,1], [3,1], [0,2], [3,2], [6,2]], // f (U R U' R')2 f'
+[[7,2], [1,2], [2,2], [1,1], [2,1], [1,2], [2,2], [1,1], [2,1], [7,1]], // r' (L' F' L F)2 r
 */
 ];
 phase3_2gen_move_seqs = phase3_2gen_move_seqs.concat(phase3_2gen_move_seqs.map(seq => invert_move_sequence(seq)));
@@ -1862,7 +1640,7 @@ L
 F U R U' R' F'
 R' L' F' L F R
 f U R U' R' f'
-r' L' F' L F R
+r' L' F' L F r
 F U F' U F U F' (= F' U F U F' U F = r' F r U r' F r = r l U' l F l r')
 R' L R L R' L R (= R L R' L R L R' = f R f' L f R f' = f' u R u L' u f)
 
@@ -1879,28 +1657,10 @@ r' L r f' r' U f' r'
 F' L' F' R' F' R' U' R'
 f' r' L' U' L' U' f' r'
 
-[*
-F U' F' U' F R U' R' F'
-R' L R L R' F' L F R
-f R' f' L' f U R' U' f'
-r' F r U r' L' F L r
-F (U R U' R')2 F'
-R' (L' F' L F)2 R
-f (U R U' R')2 f'
-r' (L' F' L F)2 r
-*]
 and the inverses of the above
 
 These are the atomic 4-gen move sequences of length <= 8 where the induced permutations lie in the
 <U,L> group (verified with GAP, barring transcription errors).
-
-The 8-movers starting with F/F' (mirror to get the ones starting with R'/R):
-F R F' L' U' F R F'
-F R' F' U L F R' F'
-F R' F' R U F' L F
-F' L' F U' R' F R F'
-F' L' F' R' F' R' U' R'
-(these are not currently used)
 
 Temporarily going out of LU 2-gen can sometimes save _many_ moves, e.g. the F R U R' U' F' scramble
 obviously has a 6-move 4-gen solution (F U R U' R' F'), but the optimal 2-gen solution is 24 moves:
@@ -1909,6 +1669,7 @@ U L' U L' U' L' U' L U' L U L' U L' U L U L' U' L U' L U L'.
 
 let phase3_2gen_facelet_permutations = phase3_2gen_move_seqs.map(seq => apply_move_sequence(permutation_from_cycles([], 72), seq));
 let phase3_2gen_piece_permutations = phase3_2gen_facelet_permutations.map(convert_move_to_permutations);
+let phase3_2gen_move_orders = phase3_2gen_facelet_permutations.map(permutation_order);
 
 function index_phase3_2gen(facelets)
 {
@@ -1991,6 +1752,7 @@ function generate_phase3_2gen_depth_table()
 	const Nce = mtable_ce[0].length; // = 1440
 	const N = Nab*Nce; // = 63504000
 	const max_depth = 25; // pre-determined; hard-coding this makes the algorithm a bit faster
+	const all_weights = phase3_2gen_move_seqs.map(seq => seq.length);
 	const table = new Int8Array(N).fill(max_depth);
 	const solved_indices = index_phase3_2gen(solved_state);
 	table[solved_indices[0] + Nab*solved_indices[1]] = 0;
@@ -2000,15 +1762,15 @@ function generate_phase3_2gen_depth_table()
 	{
 		done = true;
 		//console.log(`scanning depth ${depth}`);
-		let move_indices = Array(phase3_2gen_nmoves).fill().map((x,i)=>i).filter(m => phase3_2gen_move_seqs[m].length + depth < max_depth);
-		let weights = move_indices.map(m => phase3_2gen_move_seqs[m].length);
+		let move_indices = Array(phase3_2gen_nmoves).fill().map((x,i)=>i).filter(m => all_weights[m] + depth < max_depth);
+		move_indices.sort((m, mm) => all_weights[m] - all_weights[mm]);
+		let weights = compose(all_weights, move_indices);
 		let mtable_ab_pruned = compose(mtable_ab, move_indices);
 		let mtable_ce_pruned = compose(mtable_ce, move_indices);
 		let nmoves = move_indices.length;
 		//console.log(move_indices);
-		for (let state = 0; state < N; state++)
+		for (let state = table.indexOf(depth); state !== -1; state = table.indexOf(depth, state+1))
 		{
-			if (table[state] !== depth) {continue;}
 			let ab = state % Nab, ce = (state / Nab) | 0;
 			for (let mi = 0; mi < nmoves; mi++)
 			{
@@ -2056,79 +1818,114 @@ function solve_phase3_2gen(facelets, indices=index_phase3_2gen(facelets), simpli
 	return simplify ? simplify_move_sequence(seq) : seq;
 }
 
-/* Some glue code */
-
-function solve_phase2_and_phase3(facelets, phase2_attempts=25, phase3_cap=17, phase2_cut=3)
+function solve_phase3_2gen_readable(facelets, indices=index_phase3_2gen(facelets))
 {
-	let pool = [];
-	let phase2_mtables = [generate_phase2_ac_mtable(), generate_phase2_be_mtable()];
-	let phase2_ptables = [generate_phase2_ac_ptable(), generate_phase2_be_ptable()];
-	let gen = ida_solve_gen(index_phase2(facelets), phase2_mtables, phase2_ptables, 30, commute_table);
-	let facelets_t2 = compose(facelets, move_X).map(x => x ^ 1);
-	let gen_t2 = ida_solve_gen(index_phase2(facelets_t2), phase2_mtables, phase2_ptables, 30, commute_table);
-	for (let i = 0; i < phase2_attempts; i++)
+	//const THRESHOLD = 31;
+	let [ab, ce] = indices;
+	let mtable_ab = generate_phase3_2gen_centre_mtable();
+	let mtable_ce = generate_phase3_2gen_corneredge_mtable();
+	let depth_table = generate_phase3_2gen_depth_table();
+	let initial = depth_table[ab + 44100 * ce];
+	let best_score = Infinity;
+	let best_solution;
+	//console.log(`initial: ${initial}`);
+	search:
+	for (let bound = initial; bound <= initial+0; bound++)
 	{
+		let gen = solve_phase3_2gen_ida(ab, ce, mtable_ab, mtable_ce, depth_table, bound);
+		for (let solution of gen)
 		{
-		let {value, done} = gen.next();
-		if (!done)
-		{
-			for (let i = 0; i < phase2_cut; i++) {value.pop();}
-			let intermediate = {seq: value, facelets: apply_move_sequence(facelets, value), type: 'normal'};
-			pool.push(intermediate);
-			//console.log(JSON.stringify(intermediate));
-			let phase3_gen = phase3_ida_solve_gen(index_phase3(intermediate.facelets), phase3_cap);
-			let phase3_sol = phase3_gen.next().value;
-			if (phase3_sol)
+			let expanded = solution.map(m => phase3_2gen_move_seqs[m]).flat();
+			let simplified = simplify_move_sequence(expanded);
+			let score = grade_readability(simplified);
+			if (score < best_score)
 			{
-				return intermediate.seq.concat(phase3_sol);
+				best_score = score;
+				best_solution = simplified;
+				//console.log(`${score} ${stringify_move_sequence(simplified, true)}`);
+				//if (score <= THRESHOLD) {break search;}
 			}
-		}
-		}
-		{
-		let {value, done} = gen_t2.next();
-		if (!done)
-		{
-			for (let i = 0; i < phase2_cut; i++) {value.pop();}
-			let intermediate = {seq: value, facelets: apply_move_sequence(facelets_t2, value), type: 't2'};
-			pool.push(intermediate);
-			//console.log(JSON.stringify(intermediate));
-			let phase3_gen = phase3_ida_solve_gen(index_phase3(intermediate.facelets), phase3_cap);
-			let phase3_sol = phase3_gen.next().value;
-			if (phase3_sol)
-			{
-				return intermediate.seq.concat(phase3_sol).map(([m, r]) => [m^2, r]);
-			}
-		}
 		}
 	}
-	while (true)
+	return best_solution;
+}
+
+function alternation_penalty(x)
+{
+	return (x-1)*(x-2)/2;
+	// A B A B A       costs 1
+	// A B A B A B     costs 3
+	// A B A B A B A   costs 6
+	// A B A B A B A B costs 10
+	// etc.
+	// this should be chosen to be a convex function
+}
+
+function grade_readability(seq)
+{
+	let nowide = stringify_move_sequence(seq, true).replace(/'/g, '').split(' ');
+	return seq.length + alternations(nowide).map(alternation_penalty).reduce((x, y) => x+y, 0);
+}
+
+function alternations(seq)
+{
+	// return a list of "alternating" run lengths
+	// convention:
+	// A B       does not count
+	// A B A     counts as length 1
+	// A B A B   counts as length 2
+	// A B A B A counts as length 3
+	// etc.
+	if (seq.length < 3) {return [];}
+	let n = seq.length;
+	let a = [];
+	for (let i = 0; i < n-2; i++) {a[i] = (seq[i] === seq[i+2]);}
+	a.push(false);
+	let i = -1;
+	let runs = [];
+	while (i < n-2)
 	{
-		phase3_cap++;
-		for (let intermediate of pool)
+		i = a.indexOf(true, i+1);
+		if (i === -1) {break;}
+		let j = a.indexOf(false, i+1);
+		runs.push(j-i);
+		i = j;
+
+	}
+	return runs;
+}
+
+function* solve_phase3_2gen_ida(ab, ce, mtable_ab, mtable_ce, depth_table, bound, last=-1)
+{
+	let h = depth_table[ab + 44100 * ce];
+	if (h > bound) {return;}
+	if (bound === 0) {yield []; return;}
+	if (h === 0) {return;} // this solution includes redundant moves
+	for (let m = 0; m < phase3_2gen_nmoves; m++)
+	{
+		if (m === last && phase3_2gen_move_orders[m] <= 3) {continue;}
+		let new_ab = mtable_ab[m][ab];
+		let new_ce = mtable_ce[m][ce];
+		let new_bound = bound - phase3_2gen_move_seqs[m].length;
+		if (new_bound < 0) {continue;}
+		let subpath_gen = solve_phase3_2gen_ida(new_ab, new_ce, mtable_ab, mtable_ce, depth_table, new_bound, m);
+		while (true)
 		{
-			let phase3_gen = phase3_ida_solve_gen(index_phase3(intermediate.facelets), phase3_cap, phase3_cap);
-			let phase3_sol = phase3_gen.next().value;
-			if (phase3_sol)
-			{
-				let raw_solution = intermediate.seq.concat(phase3_sol);
-				switch (intermediate.type)
-				{
-					case 'normal': return raw_solution;
-					case 't2': return raw_solution.map(([m, r]) => [m^2, r]);
-				}
-			}
+			let {value: subpath, done} = subpath_gen.next();
+			if (done) {break;}
+			yield [m].concat(subpath);
 		}
 	}
 }
 
-function solve_phase2_and_phase3_fast(facelets, phase2_attempts=2, cap=32)
+/* Some glue code */
+
+function solve_phase2_and_phase3_fast(facelets, phase2_attempts=200, cap=24)
 {
 	let pool = [];
-	let phase2_mtables = [generate_phase2_ac_mtable(), generate_phase2_be_mtable()];
-	let phase2_ptables = [generate_phase2_ac_ptable(), generate_phase2_be_ptable()];
-	let gen = ida_solve_gen(index_phase2(facelets), phase2_mtables, phase2_ptables, 30, commute_table);
+	let gen = solve_phase2_gen(facelets);
 	let facelets_t2 = compose(facelets, move_X).map(x => x ^ 1);
-	let gen_t2 = ida_solve_gen(index_phase2(facelets_t2), phase2_mtables, phase2_ptables, 30, commute_table);
+	let gen_t2 = solve_phase2_gen(facelets_t2);
 	let best = Array(1000);
 	// phase 2 always takes <= 15 moves and phase 3 <= 25 moves, so this is a safe upper bound
 	for (let i = 0; i < phase2_attempts; i++)
@@ -2162,6 +1959,57 @@ function solve_phase2_and_phase3_fast(facelets, phase2_attempts=2, cap=32)
 			else if (solution.length < best.length)
 			{
 				best = solution;
+			}
+		}
+		}
+	}
+	return best;
+}
+
+function solve_phase2_and_phase3_readable(facelets, phase2_attempts=20, cap=30)
+{
+	let pool = [];
+	let gen = solve_phase2_gen(facelets);
+	let facelets_t2 = compose(facelets, move_X).map(x => x ^ 1);
+	let gen_t2 = solve_phase2_gen(facelets_t2);
+	let best;
+	let best_score = Infinity;
+	for (let i = 0; i < phase2_attempts; i++)
+	{
+		{
+		let {value, done} = gen.next();
+		if (!done)
+		{
+			let intermediate_facelets = apply_move_sequence(facelets, value);
+			let solution = simplify_move_sequence(value.concat(solve_phase3_2gen_readable(intermediate_facelets)));
+			let score = grade_readability(solution);
+			if (score <= cap)
+			{
+				return solution;
+			}
+			else if (score < best_score)
+			{
+				best = solution;
+				best_score = score;
+			}
+		}
+		}
+		{
+		let {value, done} = gen_t2.next();
+		if (!done)
+		{
+			let intermediate_facelets = apply_move_sequence(facelets_t2, value);
+			let solution = simplify_move_sequence(value.concat(solve_phase3_2gen_readable(intermediate_facelets)));
+			solution = solution.map(([m, r]) => [m^2, r]);
+			let score = grade_readability(solution);
+			if (score <= cap)
+			{
+				return solution;
+			}
+			else if (score < best_score)
+			{
+				best = solution;
+				best_score = score;
 			}
 		}
 		}
