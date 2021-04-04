@@ -7,7 +7,7 @@ Also thanks to [torchlight](https://github.com/torchlight) for the FTO random-st
 
 ```python
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444,\
-	megaminxScrambler, squareOneScrambler, ftoScrambler
+	megaminxScrambler, squareOneScrambler, ftoScrambler, rexScrambler
 
 scrambler333.get_WCA_scramble()
 # D2 L F2 L2 F2 U2 L D2 F2 L' B' U2 F2 D' F D2 B' U2 R U'
@@ -26,6 +26,9 @@ squareOneScrambler.get_WCA_scramble()
 
 ftoScrambler.get_random_state_scramble()
 # U L' U' L U L' U L' U' L' U' L' U' L' U L U' L' F L R L' F L U' F' R' U' R B R BR R' BL B'
+
+rexScrambler.get_random_state_scramble()
+# f F R F' R' f' F' L' F' f R' f' R F f' L f F R F' f' R f L' f' F' R L' f' L r l L' f L r'
 ```
 
 ## What scrambles can be generated?
@@ -133,6 +136,21 @@ In `ftoScrambler` module:
 - `get_random_state_scramble()`        random-state scramble (note: this takes ~10s per scramble)
 - `get_multiple_random_state_scrambles(n)`  returns a list of `n` random-state scrambles
 - `get_random_moves_scramble(n=30)`    random-moves scramble of length `n`
+
+If you need multiple random-state scrambles, it's much faster to use `get_multiple_random_state_scrambles` than
+calling `get_random_state_scramble` multiple times; the former takes the usual ~10s for the first scramble but then
+the remaining scrambles are much faster (less than 1s per scramble). This is due to how the underlying FTO scrambler
+generates background data during the first scramble which is used to speed up subsequent scrambles.
+
+### Rex Cube
+In `rexScrambler` module:
+
+- `get_random_state_scramble()`        random-state scramble (note: this takes ~10s per scramble)
+- `get_multiple_random_state_scrambles(n)`  returns a list of `n` random-state scrambles
+- `get_random_moves_scramble(n=30)`    random-moves scramble of length `n`
+
+Since Rex Cube and FTO are mechanically the same puzzle, this is actually a wrapper around `ftoScrambler` which
+translates the FTO notation to Rex Cube notation.
 
 If you need multiple random-state scrambles, it's much faster to use `get_multiple_random_state_scrambles` than
 calling `get_random_state_scramble` multiple times; the former takes the usual ~10s for the first scramble but then
